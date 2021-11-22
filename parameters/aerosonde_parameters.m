@@ -4,8 +4,8 @@ addpath('../tools');
 % initial conditions
 MAV.pn0    = 0;     % initial North position
 MAV.pe0    = 0;     % initial East position
-MAV.pd0    = -100;  % initial Down position (negative altitude)
-MAV.u0     = 25;     % initial velocity along body x-axis
+MAV.pd0    = 0;  % initial Down position (negative altitude)
+MAV.u0     = 0;     % initial velocity along body x-axis
 MAV.v0     = 0;     % initial velocity along body y-axis
 MAV.w0     = 0;     % initial velocity along body z-axis
 MAV.phi0   = 0;     % initial roll angle
@@ -27,6 +27,14 @@ MAV.Jx   = 0.824;
 MAV.Jy   = 1.135;
 MAV.Jz   = 1.759;
 MAV.Jxz  = 0.120;
+% линейные размеры, мм (для графики)
+MAV.radius_l = 125;    % луч от центра до оси винта
+MAV.radius_x = MAV.radius_l*cos(pi/4);  % проекция луча на ось
+MAV.radius_a = 6;      % размер квадратного сечения луча
+MAV.radius_a_x = MAV.radius_a*cos(45);
+MAV.cockpit_side = 70;  % длина стороны кабины-куба
+MAV.motor = [35 28];    % H, W параллелепипеда мотора
+
 MAV.S_wing        = 0.55;
 MAV.b             = 2.90;
 MAV.c             = 0.19;
@@ -106,5 +114,18 @@ MAV.C_T2 = -0.1079;
 MAV.C_T1 = -0.06044;
 MAV.C_T0 = 0.09357;
 
+MAV.J = diag([MAV.Jx MAV.Jy MAV.Jz]);
+MAV.J_inv = inv(MAV.J);
+MAV.R_g_b = @getRotationMatrix;
 
-
+% @angles = [phi theta psi]
+function R = getRotationMatrix(angles)
+    phi = 1; t = 2; psi = 3; %indices
+    s = sin(angles);
+    c = cos(angles);
+    R = [...
+        c(psi)*c(t), s(phi)*s(psi) + c(psi)*s(t), c(psi)*s(phi)*s(t) - c(phi)*s(psi); ...
+        -s(t),      c(phi)*c(t),                  c(t)*s(phi);                     ...
+        c(t)*s(psi), c(phi)*s(psi) - c(psi)*s(phi),    c(phi)*c(psi) + s(phi)*s(psi)*s(t)   ...
+    ];
+end
