@@ -22,7 +22,7 @@ MAV.r0     = 0;     % initial body frame yaw rate
    
 %physical parameters of airframe
 MAV.gravity = 9.81;
-MAV.mass = 11.0;
+MAV.mass = 0.383;
 MAV.Jx   = 0.824;
 MAV.Jy   = 1.135;
 MAV.Jz   = 1.759;
@@ -114,7 +114,12 @@ MAV.C_T2 = -0.1079;
 MAV.C_T1 = -0.06044;
 MAV.C_T0 = 0.09357;
 
-MAV.J = diag([MAV.Jx MAV.Jy MAV.Jz]);
+% MAV.J = diag([MAV.Jx MAV.Jy MAV.Jz]);
+MAV.J = [ ...
+    1.34e-3 -9.4e-8 3.3e-8;
+    -9.4e-8 1.277e-3 5.2e-8;
+    3.3e-8 5.2e-8 2.383e-3
+];
 MAV.J_inv = inv(MAV.J);
 MAV.R_g_b = @getRotationMatrix;
 

@@ -29,11 +29,15 @@ function drawQuadrotor(uu)
                                                pn,pe,pd,phi,theta,psi,...
                                                [],'normal');
         title('Aircraft')
-        xlabel('X')
-        ylabel('Y')
-        zlabel('Z')
-        view(32,47)  % set the view angle for figure
-        axis([-500,500,-500,500,-500,500]);
+        xlabel('X (x)')
+        ylabel('Z (y)')
+        zlabel('Y (z)')
+        view(45,20)  % set the view angle for figure
+        x_size = 1;
+        y_size = 1;
+        z_size = 1;
+%         самолетная система координат
+        axis([-x_size,x_size,-z_size,z_size,-y_size,y_size]);
         hold on
         
     % at every other time step, redraw base and rod
@@ -136,7 +140,7 @@ kube = [ ...
 
 cockpit = (kube + [0 1 0])* MAV.cockpit_side/2;
 
-motor = (kube + [0 1 0]) .* [1 MAV.motor(1)/MAV.motor(2) 1] * MAV.motor(2)/2
+motor = (kube + [0 1 0]) .* [1 MAV.motor(1)/MAV.motor(2) 1] * MAV.motor(2)/2;
 
 % left head radius
 radius1 = [ ...
@@ -171,6 +175,8 @@ V = [ ...
     motor + c(4,:);
     motor + c(5,:);
 ];
+
+V = 1e-3 * V;   % мм -> м
 
 cockpit_faces = [...
     1 2 3 4;
@@ -217,7 +223,7 @@ F = [ ...
     motor_faces + size(motor, 1);
     motor_faces + size(motor, 1)*2;
     motor_faces + size(motor, 1)*3;
-]
+];
     
 % define colors for each face 
   colors.grey = [0.5 0.5 0.5];

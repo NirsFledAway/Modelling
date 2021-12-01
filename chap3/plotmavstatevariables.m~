@@ -68,22 +68,22 @@ function plotMAVStateVariables(uu)
     % chi = 180/pi*atan2(Va*sin(psi)+we, Va*cos(psi)+wn);
 
     % define persistent variables 
-%     persistent pn_handle
-%     persistent pe_handle
-%     persistent h_handle
-%     persistent Va_handle
-%     persistent alpha_handle
-%     persistent beta_handle
-%     persistent phi_handle
-%     persistent theta_handle
-%     persistent chi_handle
-%     persistent p_handle
-%     persistent q_handle
-%     persistent r_handle
-%     persistent delta_e_handle
-%     persistent delta_a_handle
-%     persistent delta_r_handle
-%     persistent delta_t_handle
+    persistent pn_handle
+    persistent pe_handle
+    persistent h_handle
+    persistent Va_handle
+    persistent alpha_handle
+    persistent beta_handle
+    persistent phi_handle
+    persistent theta_handle
+    persistent chi_handle
+    persistent p_handle
+    persistent q_handle
+    persistent r_handle
+    persistent delta_e_handle
+    persistent delta_a_handle
+    persistent delta_r_handle
+    persistent delta_t_handle
     
 
   % init schema
@@ -92,51 +92,48 @@ function plotMAVStateVariables(uu)
     create_graph_params(pe, 'y', []);  % 2
     create_graph_params(h, 'z', []);    % 3
   ];
-  map = [1 2; 3 0];
+  map = [1 2]';
 
   % init params
   persistent handles
-
-  [variables, handles] = init_variables(variables_list, map, handles);
-
-  handles = draw(variables, map, handles, t);
-  
-function [variables, handles] = init_variables(list, map, handles)
   if isempty(handles)
-    handles = repmat(struct('v', []), size(list,1), 1);
+    % handles = zeros(size(variables_list))
+    handles = repmat(struct('v', []), size(variables_list,1), 1)
+  end
+  for i=1:1:length(variables_list)
+    variables_list(i).handle = handles(i).v;
+    handles(i).v
   end
   variables = repmat(create_graph_params(0, '', []), size(map, 1), size(map, 2));
   for i=1:1:size(map, 1)
     for j=1:1:size(map, 2)
       param_idx = map(i,j);
       if param_idx ~= 0
-        variables(i, j) = list(param_idx);
-        variables(i,j).handle = handles(param_idx).v;
+        variables(i, j) = variables_list(param_idx);
       end
     end
   end
-
-function handles = draw(variables, map, handles, t)
+  % drawing
   if t == 0
     figure(2), clf
   end
 
-  curr = 0;
-  for i=1:size(map, 1)
-    for j=1:size(map, 2)
-        curr = curr + 1;
+  curr = 0
+  for i=1:1:size(map, 1)
+    for j=1:1:size(map, 2)
+        curr = curr + 1
         param = variables(i,j);
-        if param.name == ""
+        if param.name == ''
             continue
         end
+        hold on
         if t == 0
-          subplot(size(variables, 1), size(variables, 2), curr);
-          hold on;
-          handle = graph_y(t, param)
-          idx = map(i,j);
-          handles(idx).v = handle
+          subplot(size(variables, 1), size(variables, 2), i);
+          handle = graph_y_yhat_yd(t, param);
+          handles(map(i,j)).v = handle
         else
-          graph_y(t, param);
+          disp('graph_y_yhat_yd')
+          graph_y_yhat_yd(t, param);
         end
     end
   end
@@ -147,16 +144,18 @@ function pack = create_graph_params(val, name, handle)
   pack.val_desired = 0;
   pack.name = name;
   pack.handle = handle;
+% end
+% end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % graph y with lable mylabel
-function handle = graph_y(t, params)
+function handle = graph_y(t, params, color)
   y = params.val;
   lab = params.name;
   handle = params.handle;
   if isempty(handle),
-    handle    = plot(t,y,'b');
+    handle    = plot(t,y,color);
   else
     set(handle,'Xdata',[get(handle,'Xdata'),t]);
     set(handle,'Ydata',[get(handle,'Ydata'),y]);

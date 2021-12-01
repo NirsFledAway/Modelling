@@ -147,7 +147,7 @@ function sys=mdlDerivatives(t,x,uu, MAV)
     
     % поступательная кинематика
     p_dot = MAV.R_g_b([phi theta psi]) * [u v w]';
-    pn_dot = p_dot(1); pe_dot = p_dot(2); pd_dot = p_dot(3);
+    pn_dot = p_dot(1); pe_dot = p_dot(2); pd_dot = p_dot(3);    % x y z
     
     % вращательная кинематика
     tmp_matrix = [...
