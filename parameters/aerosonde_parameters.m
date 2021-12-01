@@ -1,5 +1,8 @@
 % initialize the mav viewer
 addpath('../tools');  
+clc;
+clear all
+close all
 
 % initial conditions
 MAV.pn0    = 0;     % initial North position

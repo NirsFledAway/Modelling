@@ -29,10 +29,10 @@ function drawQuadrotor(uu)
                                                pn,pe,pd,phi,theta,psi,...
                                                [],'normal');
         title('Aircraft')
-        xlabel('X (x)')
-        ylabel('Z (y)')
+        xlabel('Z (x)')
+        ylabel('X (y)')
         zlabel('Y (z)')
-        view(45,20)  % set the view angle for figure
+        view(135,35)  % set the view angle for figure
         x_size = 1;
         y_size = 1;
         z_size = 1;
@@ -62,9 +62,9 @@ function handle = drawQuadrotorBody(V, F, patchcolors, ...
   V = translate(V', pn, pe, pd)';  % translate Aircraft
   % transform vertices from NED to XYZ (for matlab rendering)
   R = [...
-      1, 0, 0; ...
+      0, 1, 0; ...
       0, 0, 1; ...
-      0, -1, 0; ...
+      1, 0, 0; ...
   ];
   V = V*R;
   if isempty(handle)
@@ -98,7 +98,7 @@ function XYZ=rotate(XYZ,phi,theta,psi)
            ];
   R = R_roll*R_pitch*R_yaw;
   % rotate vertices
-  XYZ = R*XYZ;
+  XYZ = R'*XYZ;
 end
 
 % translate vertices by pn, pe, pd

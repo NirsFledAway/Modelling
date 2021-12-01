@@ -67,32 +67,26 @@ function plotMAVStateVariables(uu)
     % compute course angle
     % chi = 180/pi*atan2(Va*sin(psi)+we, Va*cos(psi)+wn);
 
-    % define persistent variables 
-%     persistent pn_handle
-%     persistent pe_handle
-%     persistent h_handle
-%     persistent Va_handle
-%     persistent alpha_handle
-%     persistent beta_handle
-%     persistent phi_handle
-%     persistent theta_handle
-%     persistent chi_handle
-%     persistent p_handle
-%     persistent q_handle
-%     persistent r_handle
-%     persistent delta_e_handle
-%     persistent delta_a_handle
-%     persistent delta_r_handle
-%     persistent delta_t_handle
-    
-
+    % TODO: Vz не отображается
   % init schema
   variables_list = [
     create_graph_params(pn, 'x', []);  % 1
     create_graph_params(pe, 'y', []);  % 2
     create_graph_params(h, 'z', []);    % 3
+    create_graph_params(u, 'v_x', []);    % 4
+    create_graph_params(v, 'v_y', []);    % 5
+    create_graph_params(w, 'v_z', []);    % 6
+    create_graph_params(phi, '\phi', []);    % 7
+    create_graph_params(theta, '\vartheta', []);    % 8
+    create_graph_params(psi, '\psi', []);    % 9
+    create_graph_params(p, '\omega_x', []);    % 10
+    create_graph_params(q, '\omega_y', []);    % 11
+    create_graph_params(r, '\omega_z', []);    % 12
   ];
-  map = [1 2; 3 0];
+  linear = [1 2 3; 4 5 6]';
+  angular = [7 8 9; 10 11 12]';
+  % map = [1 2 3; 4 5 6]';
+  map = [linear; angular];
 
   % init params
   persistent handles
@@ -155,8 +149,10 @@ function handle = graph_y(t, params)
   y = params.val;
   lab = params.name;
   handle = params.handle;
-  if isempty(handle),
+  if isempty(handle) || isempty(handle.ColorMode),
     handle    = plot(t,y,'b');
+    ylabel(lab)
+    set(get(gca,'YLabel'),'Rotation', 0);
   else
     set(handle,'Xdata',[get(handle,'Xdata'),t]);
     set(handle,'Ydata',[get(handle,'Ydata'),y]);
