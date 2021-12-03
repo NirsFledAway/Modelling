@@ -11,9 +11,9 @@ MAV.pd0    = 0;  % initial Down position (negative altitude)
 MAV.u0     = 0;     % initial velocity along body x-axis
 MAV.v0     = 0;     % initial velocity along body y-axis
 MAV.w0     = 0;     % initial velocity along body z-axis
-MAV.phi0   = 0;     % initial roll angle
-MAV.theta0 = 0;     % initial pitch angle
-MAV.psi0   = 0;     % initial yaw angle
+MAV.phi0 = deg2rad(30); % initial roll angle
+MAV.psi0 = 0; % initial yaw angle
+MAV.theta0 = 0; % initial pitch angle
 e = Euler2Quaternion(MAV.phi0, MAV.theta0, MAV.psi0);
 MAV.e0     = e(1);  % initial quaternion
 MAV.e1     = e(2);
@@ -132,8 +132,8 @@ function R = getRotationMatrix(angles)
     s = sin(angles);
     c = cos(angles);
     R = [...
-        c(psi)*c(t), s(phi)*s(psi) + c(psi)*s(t), c(psi)*s(phi)*s(t) - c(phi)*s(psi); ...
+        c(psi)*c(t), s(phi)*s(psi) + c(phi)*c(psi)*s(t), c(psi)*s(phi)*s(t) - c(phi)*s(psi); ...
         -s(t),      c(phi)*c(t),                  c(t)*s(phi);                     ...
-        c(t)*s(psi), c(phi)*s(psi) - c(psi)*s(phi),    c(phi)*c(psi) + s(phi)*s(psi)*s(t)   ...
+        c(t)*s(psi), c(phi)*s(psi)*s(t) - c(psi)*s(phi),    c(phi)*c(psi) + s(phi)*s(psi)*s(t)   ...
     ];
 end

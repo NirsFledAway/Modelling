@@ -147,7 +147,12 @@ function sys=mdlDerivatives(t,x,uu, MAV)
     
     % поступательная кинематика
     p_dot = MAV.R_g_b([phi theta psi]) * [u v w]';
+    p_dot
+    
     pn_dot = p_dot(1); pe_dot = p_dot(2); pd_dot = p_dot(3);    % x y z
+%     pd_dot
+%     w
+%     fprintf("%f %f %f\n\n", phi, theta, psi)
     
     % вращательная кинематика
     tmp_matrix = [...
@@ -156,20 +161,24 @@ function sys=mdlDerivatives(t,x,uu, MAV)
                 0, sin(phi),             cos(phi)              ...
               ];
     euler_angles = tmp_matrix * [p q r]';
-    phi_dot = euler_angles(1); psi_dot = euler_angles(2); theta_dot =  euler_angles(3);
+%     phi_dot = euler_angles(1); 
+%     psi_dot = euler_angles(2); theta_dot =  euler_angles(3);
+    psi_dot = 0; phi_dot = 0; theta_dot = 0;
     
     % поступательная динамика
-    tmp_matrix = [ ...
-                r*v - q*w; ...
-                p*w - r*u; ...
-                q*u - p*v  ...
-              ];
-    speed_dot = tmp_matrix + (1/MAV.mass) * [fx fy fz]';
+%     tmp_matrix = [ ...
+%                 r*v - q*w; ...
+%                 p*w - r*u; ...
+%                 q*u - p*v  ...
+%               ];
+    speed_dot = hat([u v w]')*[p q r]' + (1/MAV.mass) * [fx fy fz]';
     u_dot = speed_dot(1); v_dot = speed_dot(2); w_dot = speed_dot(3);
     
     % вращательная динамика
     pqr_dot = MAV.J_inv * ( hat([p q r]) * MAV.J * [p q r]' + [mx my mz]' );
     p_dot = pqr_dot(1); q_dot = pqr_dot(2); r_dot = pqr_dot(3);
+
+        p_dot = 0; q_dot = 0; r_dot = 0; 
     
     sys = [ ...
             pn_dot pe_dot pd_dot        ...

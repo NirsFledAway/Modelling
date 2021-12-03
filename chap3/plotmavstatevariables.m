@@ -14,7 +14,7 @@ function plotMAVStateVariables(uu)
 
     phi         = 180/pi*uu(7);      % roll angle (degrees)   
     theta       = 180/pi*uu(8);      % pitch angle (degrees)
-    psi         = 180/pi*uu(9);             % yaw angle (degrees)
+    psi         = 180/pi*uu(9);      % yaw angle (degrees)
 
     p           = 180/pi*uu(10);     % body angular rate along x-axis (degrees/s)
     q           = 180/pi*uu(11);     % body angular rate along y-axis (degrees/s)
