@@ -1,2 +1,7 @@
-*/slprj
+slprj
 .DS_Store
+*~
+*.slxc
+*.autosave
+*.asv
+*.r20*
