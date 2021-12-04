@@ -140,19 +140,22 @@ function sys=mdlDerivatives(t,x,uu, MAV)
     fx    = uu(1);  
     fy    = uu(2);
     fz    = uu(3);
-    mx   = uu(4);
+    mx    = uu(4);
     my     = uu(5);
     mz     = uu(6);
+
+%     p = x(1:3)
+%     V = x(4:6);
+%     euler = x(7:9);
+%     omega = x(10:12);
+%     f = uu(1:3)
+%     m = uu(4:6);
     
     
     % поступательная кинематика
     p_dot = MAV.R_g_b([phi theta psi])' * [u v w]';
-    p_dot
     
     pn_dot = p_dot(1); pe_dot = p_dot(2); pd_dot = p_dot(3);    % x y z
-%     pd_dot
-%     w
-%     fprintf("%f %f %f\n\n", phi, theta, psi)
     
     % вращательная кинематика
     tmp_matrix = [...
@@ -161,9 +164,9 @@ function sys=mdlDerivatives(t,x,uu, MAV)
                 0, sin(phi),             cos(phi)              ...
               ];
     euler_angles = tmp_matrix * [p q r]';
-%     phi_dot = euler_angles(1); 
-%     psi_dot = euler_angles(2); theta_dot =  euler_angles(3);
-    psi_dot = 0; phi_dot = 0; theta_dot = 0;
+    phi_dot = euler_angles(1); 
+    psi_dot = euler_angles(2); theta_dot =  euler_angles(3);
+%     psi_dot = 0; phi_dot = 0; theta_dot = 0;
     
     % поступательная динамика
 %     tmp_matrix = [ ...
@@ -178,7 +181,7 @@ function sys=mdlDerivatives(t,x,uu, MAV)
     pqr_dot = MAV.J_inv * ( hat([p q r]) * MAV.J * [p q r]' + [mx my mz]' );
     p_dot = pqr_dot(1); q_dot = pqr_dot(2); r_dot = pqr_dot(3);
 
-        p_dot = 0; q_dot = 0; r_dot = 0; 
+%         p_dot = 0; q_dot = 0; r_dot = 0; 
     
     sys = [ ...
             pn_dot pe_dot pd_dot        ...
@@ -189,6 +192,55 @@ function sys=mdlDerivatives(t,x,uu, MAV)
 %     sys = zeros(12, 1);
 
 % end mdlDerivatives
+
+% function sys=mdlDerivativesMatrix(t,x,uu, MAV)
+% %   Earth coordinates
+%     p = x(1:3)
+% %   speed in 'b' coordinates
+%     V = x(4:6);
+% %   Euler angles
+%     euler = x(7:9);
+% %   angular speeds
+%     omega = x(10:12);
+% %   inputs
+%     F = uu(1:3)
+%     M = uu(4:6);
+%     
+%     
+%     % поступательная кинематика
+%     p_dot = MAV.R_g_b(euler)' * V;
+%     
+%     % вращательная кинематика
+%     tmp_matrix = [...
+%                 1, -cos(phi)*tan(theta), sin(phi)*tan(theta);  ...
+%                 0, cos(phi)/cos(theta),  -sin(phi)/cos(theta); ...
+%                 0, sin(phi),             cos(phi)              ...
+%               ];
+%     euler_dot = tmp_matrix * omega;
+%     
+%     % поступательная динамика
+% %     tmp_matrix = [ ...
+% %                 r*v - q*w; ...
+% %                 p*w - r*u; ...
+% %                 q*u - p*v  ...
+% %               ];
+%     V_dot = hat(V)*omega + (1/MAV.mass) * F;
+%     
+%     % вращательная динамика
+%     pqr_dot = MAV.J_inv * ( hat(omega) * MAV.J * omega + M );
+%     sys = [
+%         p_dot;
+%         euler_dot;  % !!! поменять порядок углов
+% 
+%     ];
+%     
+%     sys = [ ...
+%             pn_dot pe_dot pd_dot        ...
+%             u_dot v_dot w_dot           ...
+%             phi_dot theta_dot psi_dot   ...
+%             p_dot q_dot r_dot           ...
+%           ]';
+% end mdlDerivativesMatrix
 
 %
 %=============================================================================
