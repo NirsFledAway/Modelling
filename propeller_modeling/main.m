@@ -21,6 +21,9 @@ V0 = 0;
 
 prop = DATA.propellers.p5040x2;
 exper = DATA.experiments.racestar_br2205;
+
+prop = DATA.propellers.p5040x2;
+exper = DATA.experiments.emax_eco_ii_2306__5040;
 % F_est = Gabriel_Stampes(exper.N, prop, rho, V0);
 F_est = Gaurang(exper.N, prop, rho, V0);
 

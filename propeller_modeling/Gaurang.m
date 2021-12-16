@@ -12,7 +12,8 @@ theta = atan(p/(pi*d))
 C_T = 4/3*k*theta*(1 - (1 - ed)^3) - ...
       k*( sqrt(k*(1+k)) - sqrt(k) ) * (1-(1-ed)^2)
 
-K_f = 1/6*rho*pi*(d/2)^4*ed^4*C_T
+% K_f = 1/6*rho*pi*(d/2)^4*ed^4*C_T
+K_f = rho*pi*(d/2)^4*C_T
 
 T = Omega * K_f;
 T
