@@ -13,7 +13,7 @@ MAV.v0     = 0;     % initial velocity along body y-axis
 MAV.w0     = 0;     % initial velocity along body z-axis
 MAV.phi0 = deg2rad(30); % initial roll angle
 MAV.psi0 = 0; % initial yaw angle
-MAV.theta0 = 0; % initial pitch angle
+MAV.theta0 =  0; % initial pitch angle
 e = Euler2Quaternion(MAV.phi0, MAV.theta0, MAV.psi0);
 MAV.e0     = e(1);  % initial quaternion
 MAV.e1     = e(2);
@@ -26,25 +26,27 @@ MAV.r0     = 0;     % initial body frame yaw rate
 %physical parameters of airframe
 MAV.gravity = 9.81;
 MAV.mass = 0.383;
-MAV.Jx   = 0.824;
-MAV.Jy   = 1.135;
-MAV.Jz   = 1.759;
-MAV.Jxz  = 0.120;
+// MAV.Jx   = 0.824;
+// MAV.Jy   = 1.135;
+// MAV.Jz   = 1.759;
+// MAV.Jxz  = 0.120;
 % линейные размеры, мм (для графики)
 MAV.radius_l = 125;    % луч от центра до оси винта
 MAV.radius_x = MAV.radius_l*cos(pi/4);  % проекция луча на ось
+MAV.radius_z = MAV.radius_l*cos(pi/4);
 MAV.radius_a = 6;      % размер квадратного сечения луча
 MAV.radius_a_x = MAV.radius_a*cos(45);
 MAV.cockpit_side = 70;  % длина стороны кабины-куба
 MAV.motor = [35 28];    % H, W параллелепипеда мотора
 
-MAV.S_wing        = 0.55;
-MAV.b             = 2.90;
-MAV.c             = 0.19;
-MAV.S_prop        = 0.2027;
-MAV.rho           = 1.2682;
-MAV.e             = 0.9;
-MAV.AR            = MAV.b^2/MAV.S_wing;
+
+// MAV.S_wing        = 0.55;
+// MAV.b             = 2.90;
+// MAV.c             = 0.19;
+// MAV.S_prop        = 0.2027;
+// MAV.rho           = 1.2682;
+// MAV.e             = 0.9;
+// MAV.AR            = MAV.b^2/MAV.S_wing;
 
 % Gamma parameters from uavbook page 36
 MAV.Gamma  = MAV.Jx*MAV.Jz-MAV.Jxz^2;
@@ -118,11 +120,13 @@ MAV.C_T1 = -0.06044;
 MAV.C_T0 = 0.09357;
 
 % MAV.J = diag([MAV.Jx MAV.Jy MAV.Jz]);
-MAV.J = [ ...
-    1.34e-3 -9.4e-8 3.3e-8;
-    -9.4e-8 1.277e-3 5.2e-8;
-    3.3e-8 5.2e-8 2.383e-3
-];
+% MAV.J = [ ...
+%     1.34e-3 -9.4e-8 3.3e-8;
+%     -9.4e-8 1.277e-3 5.2e-8;
+%     3.3e-8 5.2e-8 2.383e-3
+% ];
+MAV.J = diag([1.34e-3 1.277e-3 2.383e-3]);
+MAV.J
 MAV.J_inv = inv(MAV.J);
 MAV.R_g_b = @getRotationMatrix;
 

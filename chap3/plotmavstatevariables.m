@@ -77,8 +77,8 @@ function plotMAVStateVariables(uu)
     create_graph_params(v, 'v_y', []);    % 5
     create_graph_params(w, 'v_z', []);    % 6
     create_graph_params(phi, '\phi', []);    % 7
-    create_graph_params(theta, '\vartheta', []);    % 8
-    create_graph_params(psi, '\psi', []);    % 9
+    create_graph_params(psi, '\psi', []);    % 8
+    create_graph_params(theta, '\vartheta', []);    % 9
     create_graph_params(p, '\omega_x', []);    % 10
     create_graph_params(q, '\omega_y', []);    % 11
     create_graph_params(r, '\omega_z', []);    % 12

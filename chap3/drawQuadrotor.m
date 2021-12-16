@@ -33,9 +33,9 @@ function drawQuadrotor(uu)
         ylabel('X (y)')
         zlabel('Y (z)')
         view(135,35)  % set the view angle for figure
-        x_size = 0.3;
-        y_size = 0.3;
-        z_size = 0.3;
+        x_size = 3;
+        y_size = 3;
+        z_size = 3;
 %         самолетная система координат
         axis([-x_size,x_size,-z_size,z_size,-y_size,y_size]);
         hold on
