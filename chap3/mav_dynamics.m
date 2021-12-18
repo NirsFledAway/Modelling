@@ -66,9 +66,9 @@ function [sys,x0,str,ts,simStateCompliance]=mdlInitializeSizes(MAV)
 %
 sizes = simsizes;
 
-sizes.NumContStates  = 12;
+sizes.NumContStates  = 13;
 sizes.NumDiscStates  = 0;
-sizes.NumOutputs     = 12;
+sizes.NumOutputs     = 13;
 sizes.NumInputs      = 7;
 sizes.DirFeedthrough = 0;
 sizes.NumSampleTimes = 1;   % at least one sample time is needed
@@ -91,6 +91,7 @@ x0  = [...
     MAV.p0;...
     MAV.q0;...
     MAV.r0;...
+    10;...
     ];
 
 %
@@ -136,6 +137,7 @@ function sys=mdlDerivatives(t,x,uu, MAV)
     p     = x(10);  % крен
     q     = x(11);  % тангаж
     r     = x(12);  % рыскание
+    x_target     = x(13);  %
 %   inputs
     f1    = uu(1);  
     f2    = uu(2);
@@ -154,6 +156,9 @@ function sys=mdlDerivatives(t,x,uu, MAV)
 %     m = uu(4:6);
 
     R_g_b = MAV.R_g_b([phi theta psi]); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
+
+    x_target_dot = 1.8; % target velocity m/s
+%     [phi, theta] = Naved(t,x,uu, MAV, x_target_dot);
 
     % Предварительные вычисления
     f_gravity = R_g_b * [0; MAV.mass*(-MAV.gravity); 0];
@@ -208,6 +213,7 @@ function sys=mdlDerivatives(t,x,uu, MAV)
             u_dot v_dot w_dot           ...
             phi_dot theta_dot psi_dot   ...
             p_dot q_dot r_dot           ...
+            x_target_dot                ...
           ]';
 %     sys = zeros(12, 1);
 
@@ -295,6 +301,7 @@ function sys=mdlOutputs(t,x)
         x(10);
         x(11);
         x(12);
+        x(13);
         ];
 sys = y;
 
