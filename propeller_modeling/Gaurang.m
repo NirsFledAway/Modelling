@@ -11,7 +11,10 @@ lambda_c = Va./(Omega*d/2)
 C_T = 4/3*k*theta*(1 - (1 - ed)^3) - ...
       k*( sqrt((lambda_c - k).^2+k) - sqrt(k) ) * (1-(1-ed)^2)
 
-K_f = 1/6*rho*pi*(ed*d/2)^4*C_T
+% lambda_i = 1/2 * (sqrt((lambda_c-k).^2 + k) - (lambda_c+k));
+% C_T = 2/3 * k * ed * (3*(lambda_i-2*theta)*ed + 2*theta*ed^2 + 6*theta - 6*lambda_i);
+
+K_f = 1/6 * rho*pi*(ed*d/2)^4*C_T
 % K_f = rho*pi*(d/2)^4*C_T
 
 T = Omega.^2 .* K_f;

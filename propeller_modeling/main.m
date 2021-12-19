@@ -13,8 +13,8 @@ exper = DATA.experiments.racestar_br2205;
 prop = DATA.propellers.dalprope_cyclone_5040x3;
 exper = DATA.experiments.emax_eco_ii_2306__5040;
 
-exper = DATA.experiments.emax_rs2205_5045x3;
-prop = DATA.propellers.p5045x3;
+% exper = DATA.experiments.emax_rs2205_5045x3;
+% prop = DATA.propellers.p5045x3;
 
 %% calc forces
 % F_est = Gabriel_Stampes(exper.N, prop, rho, Va);
