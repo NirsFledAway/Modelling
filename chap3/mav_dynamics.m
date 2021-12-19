@@ -118,98 +118,98 @@ simStateCompliance = 'UnknownSimState';
 % Return the derivatives for the continuous states.
 %=============================================================================
 %
-function sys=mdlDerivatives(t,x,uu, MAV)
-
-%   Earth coordinates
-    pn    = x(1);
-    pe    = x(2);
-    pd    = x(3);
-%   speed in 'b' coordinates
-    u     = x(4);
-    v     = x(5);
-    w     = x(6);
-%   position quaternions
-    phi    = x(7);
-    theta    = x(8);
-    psi    = x(9);
-%   angular speeds
-    p     = x(10);  % крен
-    q     = x(11);  % тангаж
-    r     = x(12);  % рыскание
-%   inputs
-    f1    = uu(1);  
-    f2    = uu(2);
-    f3    = uu(3);
-    f4 = uu(4);
-
-    mx    = uu(5);
-    my     = uu(6);
-    mz     = uu(7);
-
-%     p = x(1:3)
-%     V = x(4:6);
-%     euler = x(7:9);
-%     omega = x(10:12);
-%     f = uu(1:3)
-%     m = uu(4:6);
-
-    R_g_b = MAV.R_g_b([phi theta psi]); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
-
-    % Предварительные вычисления
-    f_gravity = R_g_b * [0; MAV.mass*(-MAV.gravity); 0];
-    f_resistance = [0; 0; 0];
-    P_traction = [0; 1; 0] * (f1 + f2 + f3 + f4);   % тяго
-    F_b = f_gravity + f_resistance + P_traction;    % результирующая сил в связанной СК
-
-    M_gyro = [mx my mz]';  % от винтов, вращение по рЫсканию
-    M_traction = [
-        ( f1 + f4 - (f2 + f3) ) * MAV.radius_z*1e-3;
-        0;
-        ( f1 + f2 - (f3 + f4) ) * MAV.radius_x*1e-3;
-    ];
-%     M_traction = [0 0 0]';
-    M_b = M_gyro + M_traction;
-    % --------
-    
-    
-    % поступательная кинематика
-    p_dot = R_g_b' * [u v w]';
-    
-    pn_dot = p_dot(1); pe_dot = p_dot(2); pd_dot = p_dot(3);    % x y z
-    
-    % вращательная кинематика
-    tmp_matrix = [...
-                1, -cos(phi)*tan(theta), sin(phi)*tan(theta);  ...
-                0, cos(phi)/cos(theta),  -sin(phi)/cos(theta); ...
-                0, sin(phi),             cos(phi)              ...
-              ];
-    euler_angles = tmp_matrix * [p q r]';
-    phi_dot = euler_angles(1); 
-    psi_dot = euler_angles(2); theta_dot =  euler_angles(3);
-%     psi_dot = 0; phi_dot = 0; theta_dot = 0;
-    
-    % поступательная динамика
-%     tmp_matrix = [ ...
-%                 r*v - q*w; ...
-%                 p*w - r*u; ...
-%                 q*u - p*v  ...
+% function sys=mdlDerivatives(t,x,uu, MAV)
+% 
+% %   Earth coordinates
+%     pn    = x(1);
+%     pe    = x(2);
+%     pd    = x(3);
+% %   speed in 'b' coordinates
+%     u     = x(4);
+%     v     = x(5);
+%     w     = x(6);
+% %   position quaternions
+%     phi    = x(7);
+%     theta    = x(8);
+%     psi    = x(9);
+% %   angular speeds
+%     p     = x(10);  % крен
+%     q     = x(11);  % тангаж
+%     r     = x(12);  % рыскание
+% %   inputs
+%     f1    = uu(1);  
+%     f2    = uu(2);
+%     f3    = uu(3);
+%     f4 = uu(4);
+% 
+%     mx    = uu(5);
+%     my     = uu(6);
+%     mz     = uu(7);
+% 
+% %     p = x(1:3)
+% %     V = x(4:6);
+% %     euler = x(7:9);
+% %     omega = x(10:12);
+% %     f = uu(1:3)
+% %     m = uu(4:6);
+% 
+%     R_g_b = MAV.R_g_b([phi theta psi]); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
+% 
+%     % Предварительные вычисления
+%     f_gravity = R_g_b * [0; MAV.mass*(-MAV.gravity); 0];
+%     f_resistance = [0; 0; 0];
+%     P_traction = [0; 1; 0] * (f1 + f2 + f3 + f4);   % тяго
+%     F_b = f_gravity + f_resistance + P_traction;    % результирующая сил в связанной СК
+% 
+%     M_gyro = [mx my mz]';  % от винтов, вращение по рЫсканию
+%     M_traction = [
+%         ( f1 + f4 - (f2 + f3) ) * MAV.radius_z*1e-3;
+%         0;
+%         ( f1 + f2 - (f3 + f4) ) * MAV.radius_x*1e-3;
+%     ];
+% %     M_traction = [0 0 0]';
+%     M_b = M_gyro + M_traction;
+%     % --------
+%     
+%     
+%     % поступательная кинематика
+%     p_dot = R_g_b' * [u v w]';
+%     
+%     pn_dot = p_dot(1); pe_dot = p_dot(2); pd_dot = p_dot(3);    % x y z
+%     
+%     % вращательная кинематика
+%     tmp_matrix = [...
+%                 1, -cos(phi)*tan(theta), sin(phi)*tan(theta);  ...
+%                 0, cos(phi)/cos(theta),  -sin(phi)/cos(theta); ...
+%                 0, sin(phi),             cos(phi)              ...
 %               ];
-    speed_dot = hat([u v w]')*[p q r]' + (1/MAV.mass) * F_b;
-    u_dot = speed_dot(1); v_dot = speed_dot(2); w_dot = speed_dot(3);
-    
-    % вращательная динамика
-    pqr_dot = MAV.J_inv * ( hat([p q r]) * MAV.J * [p q r]' + M_b );
-    p_dot = pqr_dot(1); q_dot = pqr_dot(2); r_dot = pqr_dot(3);
-
-%         p_dot = 0; q_dot = 0; r_dot = 0; 
-    
-    sys = [ ...
-            pn_dot pe_dot pd_dot        ...
-            u_dot v_dot w_dot           ...
-            phi_dot theta_dot psi_dot   ...
-            p_dot q_dot r_dot           ...
-          ]';
-%     sys = zeros(12, 1);
+%     euler_angles = tmp_matrix * [p q r]';
+%     phi_dot = euler_angles(1); 
+%     psi_dot = euler_angles(2); theta_dot =  euler_angles(3);
+% %     psi_dot = 0; phi_dot = 0; theta_dot = 0;
+%     
+%     % поступательная динамика
+% %     tmp_matrix = [ ...
+% %                 r*v - q*w; ...
+% %                 p*w - r*u; ...
+% %                 q*u - p*v  ...
+% %               ];
+%     speed_dot = hat([u v w]')*[p q r]' + (1/MAV.mass) * F_b;
+%     u_dot = speed_dot(1); v_dot = speed_dot(2); w_dot = speed_dot(3);
+%     
+%     % вращательная динамика
+%     pqr_dot = MAV.J_inv * ( hat([p q r]) * MAV.J * [p q r]' + M_b );
+%     p_dot = pqr_dot(1); q_dot = pqr_dot(2); r_dot = pqr_dot(3);
+% 
+% %         p_dot = 0; q_dot = 0; r_dot = 0; 
+%     
+%     sys = [ ...
+%             pn_dot pe_dot pd_dot        ...
+%             u_dot v_dot w_dot           ...
+%             phi_dot theta_dot psi_dot   ...
+%             p_dot q_dot r_dot           ...
+%           ]';
+% %     sys = zeros(12, 1);
 
 % end mdlDerivatives
 

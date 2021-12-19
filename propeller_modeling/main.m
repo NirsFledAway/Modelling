@@ -13,13 +13,13 @@ exper = DATA.experiments.racestar_br2205;
 prop = DATA.propellers.dalprope_cyclone_5040x3;
 exper = DATA.experiments.emax_eco_ii_2306__5040;
 
-% exper = DATA.experiments.emax_rs2205_5045x3;
-% prop = DATA.propellers.p5045x3;
+exper = DATA.experiments.emax_rs2205_5045x3;
+prop = DATA.propellers.p5045x3;
 
 %% calc forces
 % F_est = Gabriel_Stampes(exper.N, prop, rho, Va);
-% F_est = Gaurang(exper.N, prop, rho, Va);
-F_est = Beard_UAV(exper.N, prop, rho, Va, 0.5076);
+F_est = Gaurang(exper.N, prop, rho, Va);
+% F_est = Beard_UAV(exper.N, prop, rho, Va, 0.0058);
 % 
 draw(exper.N, F_est, exper.F)
 
@@ -28,8 +28,10 @@ C_T_opt = dichotomi_optimization(@f, [0, 1], 0.000001)
 function y = f(C_T)
 %     global exper prop rho F;
     data; utils;
-    prop = DATA.propellers.dalprope_cyclone_5040x3;
-    exper = DATA.experiments.emax_eco_ii_2306__5040;
+%     prop = DATA.propellers.dalprope_cyclone_5040x3;
+%     exper = DATA.experiments.emax_eco_ii_2306__5040;
+exper = DATA.experiments.emax_rs2205_5045x3;
+prop = DATA.propellers.p5045x3;
     
     F_est = Beard_UAV(exper.N, prop, rho, Va, C_T);
     y = average_quadraric_error(exper.F, F_est);
@@ -38,13 +40,14 @@ end
 
 function draw(N, F_est, F)
     figure(get_uniq_number());
-    plot(N, F_est);
+    title('Зависимость тяги от RPM')
     hold on;
-    plot(N, F);
+    plot(N, F, 'o', 'LineWidth', 4);
+    plot(N, F_est, '-', 'LineWidth', 1.5);
     grid on
     xlabel('rpm')
-    ylabel('F')
-    legend('F_{est}', 'F')
+    ylabel('F, Н')
+    legend( 'F (экспериментальная)', 'F_{est} (теоретическая)')
 end
 
 function new_numb = get_uniq_number()
