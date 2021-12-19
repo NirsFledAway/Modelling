@@ -54,6 +54,7 @@ MAV.Prop.d = inch2met(5.1); % диаметр
 MAV.Prop.p = inch2met(4.5);   % шаг
 MAV.Prop.ed = 0.87;         % эффективность длины лопасти
 MAV.Prop.c_d = 0.1;         % отношение длины хорды к диаметру
+MAV.Prop.K_direction = [1 -1 1 -1]';
 MAV.Prop.K = 4.8;             % поправочно-подгоночный коэффициент
 MAV.Prop.Nb = 3;            % число лопастей
 MAV.Prop.S_approx = 5.5e-4; % m^2
