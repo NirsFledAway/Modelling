@@ -158,7 +158,7 @@ function sys=mdlDerivatives(t,x,uu, MAV)
     R_g_b = MAV.R_g_b([phi theta psi]); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
 
     x_target_dot = 1.8; % target velocity m/s
-%     [phi, theta] = Naved(t,x,uu, MAV, x_target_dot);
+    [phi, theta] = Naved(t,x,uu, MAV, x_target_dot)
 
     % Предварительные вычисления
     f_gravity = R_g_b * [0; MAV.mass*(-MAV.gravity); 0];
@@ -215,6 +215,7 @@ function sys=mdlDerivatives(t,x,uu, MAV)
             p_dot q_dot r_dot           ...
             x_target_dot                ...
           ]';
+    sys
 %     sys = zeros(12, 1);
 
 % end mdlDerivatives

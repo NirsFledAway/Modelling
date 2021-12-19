@@ -6,7 +6,7 @@ close all
 
 % initial conditions
 MAV.pn0    = 0;     % initial North position
-MAV.pe0    = 0;     % initial East position
+MAV.pe0    = 5;     % initial East position
 MAV.pd0    = 0;  % initial Down position (negative altitude)
 MAV.u0     = 0;     % initial velocity along body x-axis
 MAV.v0     = 0;     % initial velocity along body y-axis
