@@ -16,15 +16,9 @@ function sys=mdlDerivatives(t,x,uu, MAV)
     p     = x(10);  % крен
     q     = x(11);  % тангаж
     r     = x(12);  % рыскание
-%   inputs
-    f1    = uu(1);  
-    f2    = uu(2);
-    f3    = uu(3);
-    f4    = uu(4);
 
-    mx    = uu(5);
-    my     = uu(6);
-    mz     = uu(7);
+    N = uu(1:4);
+%   inputs
 
 %     p = x(1:3)
 %     V = x(4:6);
@@ -53,11 +47,11 @@ function sys=mdlDerivatives(t,x,uu, MAV)
     psi_dot = euler_angles(2); theta_dot =  euler_angles(3);
     
     % поступательная динамика
-    speed_dot = hat([u v w]')*[p q r]' + (1/MAV.mass) * F_b;
+    speed_dot = hat([u v w]')*[p q r]' + (1/MAV.mass) * Fb;
     u_dot = speed_dot(1); v_dot = speed_dot(2); w_dot = speed_dot(3);
     
     % вращательная динамика
-    pqr_dot = MAV.J_inv * ( hat([p q r]) * MAV.J * [p q r]' + M_b );
+    pqr_dot = MAV.J_inv * ( hat([p q r]) * MAV.J * [p q r]' + Mb );
     p_dot = pqr_dot(1); q_dot = pqr_dot(2); r_dot = pqr_dot(3);
 
     sys = [ ...
@@ -66,6 +60,7 @@ function sys=mdlDerivatives(t,x,uu, MAV)
             phi_dot theta_dot psi_dot   ...
             p_dot q_dot r_dot           ...
           ]';
+end
 
 % @return: Вектора силы и момента в связанной СК
 function [Fb, Mb] = forces_moments(t,x,uu, MAV)
@@ -84,9 +79,10 @@ function [Fb, Mb] = forces_moments(t,x,uu, MAV)
     % Forces
     f_gravity = R_g_b * [0; MAV.mass*(-MAV.gravity); 0];
     f_resistance = [0; 0; 0];
-    f_thrust = [0 1 0]' * Gaurang(N, MAV.prop, MAV.rho, x(5));
+    f = Gaurang(N, MAV.Prop, MAV.rho, x(5));
+    f_thrust = [0 1 0]' * sum(f);
 %     P_thrust = [0; 1; 0] * sum(f_thrust);   % тяго
-    F_b = f_gravity + f_resistance + f_thrust;    % результирующая сил в связанной СК
+    Fb = f_gravity + f_resistance + f_thrust;    % результирующая сил в связанной СК
 
     % Moments
 %     M_gyro = [mx my mz]';  % от винтов, вращение по рЫсканию
@@ -94,49 +90,48 @@ function [Fb, Mb] = forces_moments(t,x,uu, MAV)
     M_y_aerial_vec = PropellerAeroMomentumPlain(N, MAV.Prop, MAV.rho); % за счет аэродинамического сопротивления
     M_y_aerial = (-1) * sum([1 -1 -1 1]' .*  M_y_aerial_vec);
     
-    M_y_inertia = (MAV.Prop.J_y + MAV.Motor.J_rotor) .* sum([1 -1 -1 1]' .* Omega.^2)
+    M_y_inertia = (MAV.Prop.J_y + MAV.Motor.J_rotor) .* sum([1 -1 -1 1]' .* Omega.^2);
 
     M_motors = [0 1 0]' * (M_y_aerial + M_y_inertia);
+    M_motors = [0 0 0]';
 
-    omega_motor_sum = sum([1 -1 -1 1]' .* Omega);
+%     omega_motor_sum = sum([1 -1 -1 1]' .* Omega);
 
     M_gyro = [0 0 0]';
 %     M_gyro = (MAV.Prop.J_y + MAV.Motor.J_rotor) * w_z * omega_motor_sum;
 
     M_traction = [
-        ( f1 + f4 - (f2 + f3) ) * MAV.radius_z*1e-3;
+        ( f(1) + f(4) - (f(2) + f(3)) ) * MAV.radius_z*1e-3;
         0;
-        ( f1 + f2 - (f3 + f4) ) * MAV.radius_x*1e-3;
+        ( f(1) + f(2) - (f(3) + f(4)) ) * MAV.radius_x*1e-3;
     ];
-    M_b = M_gyro + M_traction + M_motors;
+    Mb = M_gyro + M_traction + M_motors;
 end
 
 % Вычисление силы тяги по методу Gaurang
-function [T, M] = Gaurang(N, prop, rho, Va)
+function T = Gaurang(N, prop, rho, Va)
     utils;
     Omega = 2*pi*N/60;
     d = prop.d;
-    p = prop.h;
+    p = prop.p;
     ed = prop.ed;
     k = prop.Nb * prop.c_d / 2;
     theta = atan(p/(pi*d));
     lambda_c = Va./(Omega*d/2);
+    lambda_c = 0;
     
     C_T = 4/3*k*theta*(1 - (1 - ed)^3) - ...
-          k*( sqrt((lambda_c - k).^2+k) - sqrt(k) ) * (1-(1-ed)^2)
+          k*( sqrt((lambda_c + k).^2+k) - sqrt(k) ) * (1-(1-ed)^2);
     
-    K_f = 1/6*rho*pi*(ed*d/2)^4*C_T
+    K_f = 1/6*rho*pi*(ed*d/2)^4*C_T;
     K_f = K_f * prop.K;
     
     T = Omega.^2 .* K_f;
-
-%     m_p = 3/4;      % точка приложения момента воздухом к винту
-%     M = T * (d/2 * m_p)
 end
 
-function [M] = PropellerAeroMomentumPlain(N, prop, rho)
+function M = PropellerAeroMomentumPlain(N, prop, rho)
     C = prop.C_1;
-    S = prop.S_approx * sin(atan(prop.h/(pi*prop.d)));
+    S = prop.S_approx * sin(atan(prop.p/(pi*prop.d)));
     Omega = 2*pi*N/60;
 
     F = 1/2 * rho * S * C * (prop.d/2*Omega).^2;

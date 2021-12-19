@@ -62,7 +62,7 @@ function plotMAVStateVariables(uu)
 %     delta_a     = 180/pi*uu(51);     % aileron angle (degrees)
 %     delta_r     = 180/pi*uu(52);     % rudder angle (degrees)
 %     delta_t     = uu(53);            % throttle setting (unitless)
-    t           = uu(55);            % simulation time
+    t           = uu(54);            % simulation time
     
     % compute course angle
     % chi = 180/pi*atan2(Va*sin(psi)+we, Va*cos(psi)+wn);

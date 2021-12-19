@@ -11,9 +11,8 @@ function drawQuadrotor(uu)
     psi      = uu(9);       % yaw angle     
     p        = uu(10);       % roll rate
     q        = uu(11);       % pitch rate     
-    r        = uu(12);       % yaw rate    
-    x_target_dot = uu(13);
-    t        = uu(14);       % time
+    r        = uu(12);       % yaw rate  
+    t        = uu(13);       % time
 
     % define persistent variables 
     persistent aircraft_handle;
