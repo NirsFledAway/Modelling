@@ -3,6 +3,7 @@ addpath('../tools');
 clc;
 clear all
 close all
+utils
 
 % initial conditions
 MAV.pn0    = 0;     % initial North position
@@ -11,7 +12,7 @@ MAV.pd0    = 0;  % initial Down position (negative altitude)
 MAV.u0     = 0;     % initial velocity along body x-axis
 MAV.v0     = 0;     % initial velocity along body y-axis
 MAV.w0     = 0;     % initial velocity along body z-axis
-MAV.phi0 = deg2rad(30); % initial roll angle
+MAV.phi0 = 0; % initial roll angle
 MAV.psi0 = 0; % initial yaw angle
 MAV.theta0 =  0; % initial pitch angle
 e = Euler2Quaternion(MAV.phi0, MAV.theta0, MAV.psi0);
@@ -50,18 +51,19 @@ MAV.motor = [35 28];    % H, W параллелепипеда мотора
 
 % Пропеллер
 MAV.Prop.d = inch2met(5.1); % диаметр
-MAV.Prop.p = inch2met(4);   % шаг
+MAV.Prop.p = inch2met(4.5);   % шаг
 MAV.Prop.ed = 0.87;         % эффективность длины лопасти
 MAV.Prop.c_d = 0.1;         % отношение длины хорды к диаметру
-MAV.Prop.K = 1;             % поправочно-подгоночный коэффициент
+MAV.Prop.K_direction = [1 -1 1 -1]';
+MAV.Prop.K = 4.8;             % поправочно-подгоночный коэффициент
 MAV.Prop.Nb = 3;            % число лопастей
 MAV.Prop.S_approx = 5.5e-4; % m^2
 MAV.Prop.C_1 = 1.15;        % 1.15 .. 1.25 according to (p. 72): https://cyberleninka.ru/article/n/aerodinamicheskoe-soprotivlenie-ploho-obtekaemyh-tel/viewer
 MAV.Prop.J_y = 0;
 
 % Мотор
-MAV.motor.KV = 2400;
-MAV.motor.J_rotor = 6.8e-7;     % оценочный
+MAV.Motor.KV = 2400;
+MAV.Motor.J_rotor = 6.8e-7;     % оценочный
 
 MAV.rho = 1.19;
 
