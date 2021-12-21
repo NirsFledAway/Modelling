@@ -1,4 +1,5 @@
 function drawQuadrotor(uu)
+
     % process inputs to function
     pn       = uu(1);       % inertial North position     
     pe       = uu(2);       % inertial East position
@@ -13,6 +14,15 @@ function drawQuadrotor(uu)
     q        = uu(11);       % pitch rate     
     r        = uu(12);       % yaw rate  
     t        = uu(13);       % time
+
+    FPS = 30;
+    persistent lastDrawTime
+    if isempty(lastDrawTime)
+        lastDrawTime = -inf;
+    end
+    if t - lastDrawTime < 1/FPS
+        return
+    end
 
     % define persistent variables 
     persistent aircraft_handle;

@@ -79,7 +79,7 @@ function [Fb, Mb] = forces_moments(t,x,uu, MAV)
     % Forces
     f_gravity = R_g_b * [0; MAV.mass*(-MAV.gravity); 0];
     f_resistance = [0; 0; 0];
-    f = Gaurang(N, MAV.Prop, MAV.rho, x(5))
+    f = Gaurang(N, MAV.Prop, MAV.rho, x(5));
     f_thrust = [0 1 0]' * sum(f);
 %     P_thrust = [0; 1; 0] * sum(f_thrust);   % тяго
     Fb = f_gravity + f_resistance + f_thrust;    % результирующая сил в связанной СК

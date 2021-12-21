@@ -14,3 +14,5 @@ SIM.ts_video = 0.1;
 SIM.start_time = 0;
 SIM.end_time = 30;
 
+SAMPLE_TIME = inf;
+
