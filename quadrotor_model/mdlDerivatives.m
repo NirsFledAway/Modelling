@@ -17,8 +17,11 @@ function sys=mdlDerivatives(t,x,uu, MAV)
     q     = x(11);  % тангаж
     r     = x(12);  % рыскание
 
-    N = uu(1:4);
+    % N = uu(1:4);
 %   inputs
+    Ncontrol = altitudeControl(x, MAV);
+    uu(1:4) = [Ncontrol Ncontrol Ncontrol Ncontrol]';
+    N = uu(1:4);
 
 %     p = x(1:3)
 %     V = x(4:6);
@@ -60,6 +63,8 @@ function sys=mdlDerivatives(t,x,uu, MAV)
             phi_dot theta_dot psi_dot   ...
             p_dot q_dot r_dot           ...
           ]';
+
+    MAV.Cache.V_dot = [u_dot v_dot w_dot]'; % линейные ускорения
 end
 
 % @return: Вектора силы и момента в связанной СК

@@ -80,6 +80,8 @@ MAV.J
 MAV.J_inv = inv(MAV.J);
 MAV.R_g_b = @getRotationMatrix;
 
+MAV.Cache.V_dot = [0 0 0]';
+
 % @angles = [phi theta psi]
 function R = getRotationMatrix(angles)
     phi = 1; t = 2; psi = 3; %indices
