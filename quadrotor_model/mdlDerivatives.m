@@ -30,9 +30,6 @@ function sys=mdlDerivatives(t,x,uu, MAV)
 %     f = uu(1:3)
 %     m = uu(4:6);
 
-    MAV.J
-    MAV.R_g_b
-
     [Fb, Mb] = forces_moments(t,x,uu, MAV);
     
     R_g_b = MAV.R_g_b1([phi theta psi]); % матрица поворота (g->b) {из Земной нормальной в связанную СК}

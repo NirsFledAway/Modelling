@@ -62,7 +62,10 @@ function plotMAVStateVariables(uu)
 %     delta_a     = 180/pi*uu(51);     % aileron angle (degrees)
 %     delta_r     = 180/pi*uu(52);     % rudder angle (degrees)
 %     delta_t     = uu(53);            % throttle setting (unitless)
-    t           = uu(13);            % simulation time
+  u1 = uu(13);
+  u2 = uu(14);
+  theta_c = uu(15);
+    t           = uu(16);            % simulation time
 
     FPS = 30;
     persistent lastDrawTime
