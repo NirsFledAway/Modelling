@@ -19,8 +19,8 @@ function sys=mdlDerivatives(t,x,uu, MAV)
 
     % N = uu(1:4);
 %   inputs
-    Ncontrol = altitudeControl(x, MAV);
-    uu(1:4) = [Ncontrol Ncontrol Ncontrol Ncontrol]';
+%     Ncontrol = altitudeControl(x, MAV);
+%     uu(1:4) = [Ncontrol Ncontrol Ncontrol Ncontrol]';
     N = uu(1:4);
 
 %     p = x(1:3)
@@ -30,9 +30,12 @@ function sys=mdlDerivatives(t,x,uu, MAV)
 %     f = uu(1:3)
 %     m = uu(4:6);
 
-    R_g_b = MAV.R_g_b([phi theta psi]); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
+    MAV.J
+    MAV.R_g_b
 
     [Fb, Mb] = forces_moments(t,x,uu, MAV);
+    
+    R_g_b = MAV.R_g_b1([phi theta psi]); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
     
     % поступательная кинематика
     p_dot = R_g_b' * [u v w]';
@@ -79,7 +82,7 @@ function [Fb, Mb] = forces_moments(t,x,uu, MAV)
     w_z     = x(12);  % рыскание
 
 
-    R_g_b = MAV.R_g_b(euler_angles); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
+    R_g_b = MAV.R_g_b1(euler_angles); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
 
     % Forces
     f_gravity = R_g_b * [0; MAV.mass*(-MAV.gravity); 0];

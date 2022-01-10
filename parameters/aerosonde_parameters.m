@@ -79,8 +79,14 @@ MAV.J = diag([1.34e-3 1.277e-3 2.383e-3]);
 MAV.J
 MAV.J_inv = inv(MAV.J);
 MAV.R_g_b = @getRotationMatrix;
+MAV.R_g_b1 = @getRotationMatrix;
 
 MAV.Cache.V_dot = [0 0 0]';
+
+% function MAV1 = get_mav()
+%     MAV1 = MAV;
+% end
+% MAV = get_mav();
 
 % @angles = [phi theta psi]
 function R = getRotationMatrix(angles)
