@@ -1,8 +1,7 @@
-% initialize the mav viewer
-addpath('tools');  
-utils
+function MAV = get_mav()
 
-clear MAV
+% inch2met = Utils.inch2met
+Init
 % initial conditions
 MAV.pn0    = 0;     % initial North position
 MAV.pe0    = 0;     % initial East position
@@ -13,11 +12,6 @@ MAV.w0     = 0;     % initial velocity along body z-axis
 MAV.phi0 = 0; % initial roll angle
 MAV.psi0 = 0; % initial yaw angle
 MAV.theta0 =  0; % initial pitch angle
-e = Euler2Quaternion(MAV.phi0, MAV.theta0, MAV.psi0);
-MAV.e0     = e(1);  % initial quaternion
-MAV.e1     = e(2);
-MAV.e2     = e(3);
-MAV.e3     = e(4);
 MAV.p0     = 0;     % initial body frame roll rate
 MAV.q0     = 0;     % initial body frame pitch rate
 MAV.r0     = 0;     % initial body frame yaw rate
@@ -48,8 +42,8 @@ MAV.motor = [35 28];    % H, W параллелепипеда мотора
 % // MAV.AR            = MAV.b^2/MAV.S_wing;
 
 % Пропеллер
-MAV.Prop.d = inch2met(5.1); % диаметр
-MAV.Prop.p = inch2met(4.5);   % шаг
+MAV.Prop.d = Utils.inch2met(5.1); % диаметр
+MAV.Prop.p = Utils.inch2met(4.5);   % шаг
 MAV.Prop.ed = 0.87;         % эффективность длины лопасти
 MAV.Prop.c_d = 0.1;         % отношение длины хорды к диаметру
 MAV.Prop.K_direction = [1 -1 1 -1]';
@@ -74,23 +68,8 @@ MAV.rho = 1.19;
 %     3.3e-8 5.2e-8 2.383e-3
 % ];
 MAV.J = diag([1.34e-3 1.277e-3 2.383e-3]);
+MAV.J
 MAV.J_inv = inv(MAV.J);
 % MAV.R_g_b = @getRotationMatrix;
 
 MAV.Cache.V_dot = [0 0 0]';
-
-% function MAV1 = get_mav1()
-%     MAV1 = MAV;
-% end
-
-% @angles = [phi theta psi]
-function R = getRotationMatrix(angles)
-    phi = 1; t = 2; psi = 3; %indices
-    s = sin(angles);
-    c = cos(angles);
-    R = [...
-        c(psi)*c(t), s(phi)*s(psi) + c(phi)*c(psi)*s(t), c(psi)*s(phi)*s(t) - c(phi)*s(psi); ...
-        -s(t),      c(phi)*c(t),                  c(t)*s(phi);                     ...
-        c(t)*s(psi), c(phi)*s(psi)*s(t) - c(psi)*s(phi),    c(phi)*c(psi) + s(phi)*s(psi)*s(t)   ...
-    ];
-end

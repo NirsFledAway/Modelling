@@ -13,6 +13,7 @@ function drawQuadrotor(uu)
     p        = uu(10);       % roll rate
     q        = uu(11);       % pitch rate     
     r        = uu(12);       % yaw rate  
+    
     t        = uu(13);       % time
 
     FPS = 30;
@@ -32,30 +33,30 @@ function drawQuadrotor(uu)
     
         
     % Init
-    if t==0
-        figure(1), clf
-        [Vertices, Faces, facecolors] = defineQuadrotor;
-        aircraft_handle = drawQuadrotorBody(Vertices,Faces,facecolors,...
-                                               pn,pe,pd,phi,theta,psi,...
-                                               [],'normal');
-        title('Aircraft')
-        xlabel('Z (x)')
-        ylabel('X (y)')
-        zlabel('Y (z)')
-        view(135,35)  % set the view angle for figure
-        x_size = 3;
-        y_size = 3;
-        z_size = 3;
-%         самолетная система координат
-        axis([-x_size,x_size,-z_size,z_size,-y_size,y_size]);
-        hold on
-        
-    % at every other time step, redraw base and rod
-    else 
-        drawQuadrotorBody(Vertices,Faces,facecolors,...
-                           pn,pe,pd,phi,theta,psi,...
-                           aircraft_handle);
-    end
+%     if t==0
+%         figure(1), clf
+%         [Vertices, Faces, facecolors] = defineQuadrotor;
+%         aircraft_handle = drawQuadrotorBody(Vertices,Faces,facecolors,...
+%                                                pn,pe,pd,phi,theta,psi,...
+%                                                [],'normal');
+%         title('Aircraft')
+%         xlabel('Z (x)')
+%         ylabel('X (y)')
+%         zlabel('Y (z)')
+%         view(135,35)  % set the view angle for figure
+%         x_size = 3;
+%         y_size = 3;
+%         z_size = 3;
+% %         самолетная система координат
+%         axis([-x_size,x_size,-z_size,z_size,-y_size,y_size]);
+%         hold on
+%         
+%     % at every other time step, redraw base and rod
+%     else 
+%         drawQuadrotorBody(Vertices,Faces,facecolors,...
+%                            pn,pe,pd,phi,theta,psi,...
+%                            aircraft_handle);
+%     end
 end
 
 %=======================================================================

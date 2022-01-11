@@ -32,7 +32,9 @@ function sys=mdlDerivatives(t,x,uu, MAV)
 
     [Fb, Mb] = forces_moments(t,x,uu, MAV);
     
-    R_g_b = MAV.R_g_b1([phi theta psi]); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
+    R_g_b = Utils.getRotationMatrix([phi theta psi]);
+    
+%     R_g_b = MAV.R_g_b([phi theta psi]); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
     
     % поступательная кинематика
     p_dot = R_g_b' * [u v w]';
@@ -78,8 +80,8 @@ function [Fb, Mb] = forces_moments(t,x,uu, MAV)
     w_y     = x(11);  % тангаж
     w_z     = x(12);  % рыскание
 
-
-    R_g_b = MAV.R_g_b1(euler_angles); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
+    R_g_b = Utils.getRotationMatrix(euler_angles);
+%     R_g_b = MAV.R_g_b1(euler_angles); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
 
     % Forces
     f_gravity = R_g_b * [0; MAV.mass*(-MAV.gravity); 0];

@@ -62,10 +62,10 @@ function plotMAVStateVariables(uu)
 %     delta_a     = 180/pi*uu(51);     % aileron angle (degrees)
 %     delta_r     = 180/pi*uu(52);     % rudder angle (degrees)
 %     delta_t     = uu(53);            % throttle setting (unitless)
-  u1 = uu(13);
-  u2 = uu(14);
-  theta_c = uu(15);
-    t           = uu(16);            % simulation time
+%       u1 = uu(13);
+%       u2 = uu(14);
+%       theta_c = uu(15);
+    t           = uu(13);            % simulation time
 
     FPS = 30;
     persistent lastDrawTime
@@ -103,12 +103,18 @@ function plotMAVStateVariables(uu)
 
   % init params
   persistent handles
-
-  [variables, handles] = init_variables(variables_list, map, handles);
+  persistent i
+  if isempty(i)
+      i = 0;
+  end
+  i = i + 1;
+  i
+  handles
+  [variables, handles] = init_variables(variables_list, map, handles, t);
 
   handles = draw(variables, map, handles, t);
   
-function [variables, handles] = init_variables(list, map, handles)
+function [variables, handles] = init_variables(list, map, handles, t)
   if isempty(handles)
     handles = repmat(struct('v', []), size(list,1), 1);
   end
@@ -139,9 +145,9 @@ function handles = draw(variables, map, handles, t)
         if t == 0
           subplot(size(variables, 1), size(variables, 2), curr);
           hold on;
-          handle = graph_y(t, param)
+          handle = graph_y(t, param);
           idx = map(i,j);
-          handles(idx).v = handle
+          handles(idx).v = handle;
         else
           graph_y(t, param);
         end

@@ -1,25 +1,19 @@
 function [teta_c, u_1, u_2, err_p]=regul(state_, des_state_, k_pid, err_i)
-% global MAV;
-% state = data(:, 1);
-% des_state = data(:, 2);
-% k_pid = data(:, 3)
 state.p = state_(1:3);
 state.v = state_(4:6);
 state.euler = state_(7:9);
 state.omega = state_(10:12);
 
+
 des_state.p = des_state_(1:3);
 des_state.v = des_state_(4:6);
 des_state.acc = des_state_(7:9);
 
-% J_z = MAV.J(3, 3);
 J_z = 2.383e-3;
 K_f = Gaurang();
 K_m = K_f*(125*cos(pi/4)*1e-3);
 g = 9.81;
 mass = 0.383;
-% K_f = MAV.temp.K_f;
-% K_m = MAV.temp.K_m;
 
 
 
@@ -42,8 +36,8 @@ Nmax = 40e3;
 u_2_max = 2 * Nmax^2;
 u_2 = min(u_2, u_2_max);
 
-a_y = des_state.acc(2) + k_y(3)*err_v(3) + k_y(1)*err_p(3) + k_y(2)*err_i(3) 
-u_1 = (a_y + g)*mass/K_f
+a_y = des_state.acc(2) + k_y(3)*err_v(3) + k_y(1)*err_p(3) + k_y(2)*err_i(3);
+u_1 = (a_y + g)*mass/K_f;
 
 u1_max = 4*Nmax^2 * (1-0.02);
 u_1 = max(min(u_1, u1_max), 0);
@@ -54,12 +48,8 @@ function K_f = Gaurang()
     p = 0.1143;
     ed = 0.87;         % эффективность длины лопасти
     c_d = 0.1;         % отношение длины хорды к диаметру
-    K_direction = [1 -1 1 -1]';
     K_ = 4.8;             % поправочно-подгоночный коэффициент
     Nb = 3;            % число лопастей
-    S_approx = 5.5e-4; % m^2
-    C_1 = 1.15;        % 1.15 .. 1.25 according to (p. 72): https://cyberleninka.ru/article/n/aerodinamicheskoe-soprotivlenie-ploho-obtekaemyh-tel/viewer
-    J_y = 0;
     k = Nb * c_d / 2;
     theta = atan(p/(pi*d));
     lambda_c = 0;
