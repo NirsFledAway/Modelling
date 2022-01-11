@@ -1,1 +1,0 @@
-inch2met = @(inch) inch * 2.54 / 100;
