@@ -14,8 +14,8 @@ function sys=mdlDerivatives(t,x,uu, MAV)
     psi    = x(9);
 %   angular speeds
     p     = x(10);  % крен
-    q     = x(11);  % тангаж
-    r     = x(12);  % рыскание
+    q     = x(11);  % рыскание
+    r     = x(12);  % тангаж
 
     N = uu(1:4);
     R_g_b = Utils.getRotationMatrix([phi theta psi]);   % матрица поворота (g->b) {из Земной нормальной в связанную СК}

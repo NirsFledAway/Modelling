@@ -62,9 +62,9 @@ function plotMAVStateVariables(uu)
 %     delta_a     = 180/pi*uu(51);     % aileron angle (degrees)
 %     delta_r     = 180/pi*uu(52);     % rudder angle (degrees)
 %     delta_t     = uu(53);            % throttle setting (unitless)
-%   u1 = uu(13);
-%   u2 = uu(14);
-%   theta_c = uu(15);
+  u1 = uu(13);
+  u2 = uu(14);
+  theta_c = rad2deg(uu(15));
     t           = uu(16);            % simulation time
 
     FPS = 100;
@@ -93,15 +93,17 @@ function plotMAVStateVariables(uu)
     create_graph_params(w, 'v_z', []);    % 6
     create_graph_params(phi, '\phi', []);    % 7
     create_graph_params(psi, '\psi', []);    % 8
-    create_graph_params(theta, '\vartheta', []);    % 9
+    create_graph_2params(theta, theta_c, '\vartheta', []);    % 9
     create_graph_params(p, '\omega_x', []);    % 10
     create_graph_params(q, '\omega_y', []);    % 11
     create_graph_params(r, '\omega_z', []);    % 12
+    create_graph_params(u1, 'u_1', []);          % 13
+    create_graph_params(u2, 'u_2', []);          % 14
   ];
   linear = [1 2 3; 4 5 6]';
   angular = [7 8 9; 10 11 12]';
   % map = [1 2 3; 4 5 6]';
-  map = [linear; angular];
+  map = [linear; angular; [13 14]];
 
   % init params
   persistent handles
@@ -141,21 +143,33 @@ function handles = draw(variables, map, handles, t)
         if t == 0
           subplot(size(variables, 1), size(variables, 2), curr);
           hold on;
-          handle = graph_y(t, param);
+          if ~isnan(param.val_desired)
+              handle = graph_y_yd(t, param);
+          else
+              handle = graph_y(t, param);
+          end
           idx = map(i,j);
           handles(idx).v = handle;
         else
-          graph_y(t, param);
+          if ~isnan(param.val_desired)
+              graph_y_yd(t, param);
+          else
+              graph_y(t, param);
+          end
         end
     end
   end
 
 function pack = create_graph_params(val, name, handle)
   pack.val = val;
-  pack.val_estimated = 0;
-  pack.val_desired = 0;
+  pack.val_estimated = nan;
+  pack.val_desired = nan;
   pack.name = name;
   pack.handle = handle;
+  
+function pack = create_graph_2params(val, des_val, name, handle)
+    pack = create_graph_params(val, name, handle);
+    pack.val_desired = des_val;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,7 +197,7 @@ function handle = graph_y_yd(t, params)
   handle = params.handle;
   if isempty(handle),
     handle(1)    = plot(t,y,'b');
-    handle(2)    = plot(t,yd,'g--');
+    handle(2)    = plot(t,yd,'g');
     ylabel(lab)
     set(get(gca, 'YLabel'),'Rotation',0.0);
   else
