@@ -67,7 +67,7 @@ function plotMAVStateVariables(uu)
   theta_c = rad2deg(uu(15));
     t           = uu(16);            % simulation time
 
-    FPS = 1000000;
+    FPS = 100;
     persistent lastDrawTime
     if isempty(lastDrawTime)
         lastDrawTime = -inf;

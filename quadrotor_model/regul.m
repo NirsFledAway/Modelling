@@ -31,9 +31,8 @@ err_v = [0; des_state.v(1)-state.v(1); des_state.v(2)-state.v(2)]; % ошибк�
 a_x = des_state.acc(1) + k_x(3)*err_v(2) + k_x(1)*err_p(2) + k_x(2)*err_i(2);
 teta_c = -a_x/(g);
 teta_c_dot = - (k_x(1)*err_v(2)) / g;
-teta_c_dot = 0;
+% teta_c_dot = 0;
 teta_c = sign(teta_c) * min(abs(teta_c), deg2rad(20));
-teta_c = 0;
 
 err_p(1) = teta_c - state.euler(2);
 err_v(1) = teta_c_dot - state.omega(2);
@@ -41,7 +40,6 @@ err_v(1) = teta_c_dot - state.omega(2);
 teta_ddot = 0 + k_theta(3)*err_v(1) + k_theta(1)*err_p(1) + k_theta(2)*err_i(1);
 u_2 = teta_ddot*J_z/K_m;
 u_2 = sign(u_2) * min(abs(u_2), u_max(2));
-u_2 = 0;
 
 a_y = des_state.acc(2) + k_y(3)*err_v(3) + k_y(1)*err_p(3) + k_y(2)*err_i(3); 
 u_1 = (a_y + g)*MAV.mass/K_f;
