@@ -71,3 +71,5 @@ MAV.J = diag([1.34e-3 1.277e-3 2.383e-3]);
 MAV.J_inv = inv(MAV.J);
 
 filter_freq = 2*pi*1000;
+
+% K_f = 5.2194e-10

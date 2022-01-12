@@ -46,7 +46,7 @@ function drawQuadrotor(uu)
 %         view(135,35)  % set the view angle for figure
         view(120,20)
         x_size = 4.5;
-        y_size = 4.5;
+        y_size = 5;
         z_size = 3;
 %         самолетная система координат
         [center, s_size] = Utils.getCenter();
