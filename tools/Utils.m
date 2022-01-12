@@ -14,5 +14,12 @@ classdef Utils
                 c(t)*s(psi), c(phi)*s(psi)*s(t) - c(psi)*s(phi),    c(phi)*c(psi) + s(phi)*s(psi)*s(t)   ...
             ];
         end
+        
+        function [C, screen_size] = getCenter()
+           set(0,'units','pixels')  
+            %Obtains this pixel information
+            screen_size = get(0,'screensize')
+            C = screen_size/2;
+        end
     end
 end

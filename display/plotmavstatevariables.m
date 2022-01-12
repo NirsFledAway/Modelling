@@ -67,7 +67,7 @@ function plotMAVStateVariables(uu)
   theta_c = rad2deg(uu(15));
     t           = uu(16);            % simulation time
 
-    FPS = 100;
+    FPS = 1000000;
     persistent lastDrawTime
     if isempty(lastDrawTime)
         lastDrawTime = -inf;
@@ -130,6 +130,8 @@ function [variables, handles] = init_variables(list, map, handles)
 function handles = draw(variables, map, handles, t)
   if t == 0
     figure(2), clf
+    [center, s_size] = Utils.getCenter();
+    set(gcf, 'Position', [0 0 center(3) center(4)*2]);
   end
 
   curr = 0;

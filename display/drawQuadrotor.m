@@ -43,12 +43,15 @@ function drawQuadrotor(uu)
         xlabel('Z (x)')
         ylabel('X (y)')
         zlabel('Y (z)')
-        view(135,35)  % set the view angle for figure
-        x_size = 3;
-        y_size = 3;
+%         view(135,35)  % set the view angle for figure
+        view(120,20)
+        x_size = 4.5;
+        y_size = 4.5;
         z_size = 3;
 %         самолетная система координат
-        axis([-x_size,x_size,-z_size,z_size,-y_size,y_size]);
+        [center, s_size] = Utils.getCenter();
+        set(gcf, 'Position', [center(3) 300 center(3) center(4)*2-300]);
+        axis([-0.3, z_size,-0.3,x_size,-0.3,y_size]);
         hold on
         
     % at every other time step, redraw base and rod
