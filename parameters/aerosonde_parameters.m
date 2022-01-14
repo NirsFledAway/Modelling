@@ -9,7 +9,7 @@ utils
 MAV.pn0    = 0;     % initial North position
 MAV.pe0    = 30;     % initial Yg position
 MAV.pd0    = 0;     % initial Zg position
-MAV.u0     = 1;     % initial velocity along body x-axis
+MAV.u0     = 0;     % initial velocity along body x-axis
 MAV.v0     = 0;     % initial velocity along body y-axis
 MAV.w0     = 0;     % initial velocity along body z-axis
 MAV.phi0 = 0; % initial roll angle
@@ -86,8 +86,8 @@ Reg.PID2 = [
 ]';
 Reg.PID3 = [
     85
-    85
-    25
+    0
+    60
 ]';
 Reg.PID4 = [
     0
@@ -100,3 +100,84 @@ Reg.PID5 = [
     5
 ]';
 MAV.Reg = Reg;
+
+% Modes
+Modes = struct()
+
+% Stabilize fast
+Reg = struct()
+Reg.PID1 = [
+    200
+    0
+    10
+]';
+Reg.PID2 = [
+    14
+    0
+    5
+]';
+Reg.PID3 = [
+    85
+    85
+    25
+]';
+Modes.Stab_fast.Reg = Reg;
+Modes.Stab_fast.N = 0;
+
+% Flight on Beard targeting
+Modes.Targeting_1.N = 1;
+Reg = struct()
+Reg.PID1 = [
+    200
+    0
+    10
+]';
+Reg.PID2 = [
+    0
+    0
+    5
+]';
+Reg.PID3 = [
+    0
+    0
+    10
+]';
+Modes.Beard_targeting.Reg = Reg;
+Modes.Beard_targeting.N = 2;
+
+% Stabilize gently
+Reg = struct()
+Reg.PID1 = [
+    200
+    0
+    10
+]';
+Reg.PID2 = [
+    14
+    0
+    5
+]';
+Reg.PID3 = [
+    85
+    0
+    60
+]';
+Reg.PID3_speed = [
+    0
+    0
+    60
+]';
+Modes.Stab_gently.Reg = Reg;
+Modes.Stab_gently.N = 3;
+
+Modes.Soft_falling_1.Falling_speed = -0.3;
+
+% Sleep; (7)
+% Reg = struct();
+% Reg.PID1 = zeros(3,1);
+% Reg.PID2 = zeros(3,1);
+% Reg.PID3 = zeros(3,1);
+% Modes.Sleep.Reg = Reg;
+
+MAV.Modes = Modes;
+

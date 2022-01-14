@@ -1,4 +1,4 @@
-function [a_y, telemetry, gamma_dot] = targeting_beard(r_t, dr_t, ddr_t, r_m, dr_m, ddm_t, theta, V_g, enable)
+function [a_y, telemetry, gamma_dot] = targeting_beard(r_t, dr_t, ddr_t, r_m, dr_m, ddm_t, theta, V_g, theta_euler, enable)
     if enable == 0
         gamma_dot = 0;
         a_y = 0;
@@ -12,7 +12,7 @@ function [a_y, telemetry, gamma_dot] = targeting_beard(r_t, dr_t, ddr_t, r_m, dr
         l_dot = dr_t - dr_m;
         l_n = norm(l);
         
-        R_g_v = Utils.getRotationMatrix([0 theta 0]);
+        R_g_v = Utils.getRotationMatrix([0 theta_euler 0]);
         Omega = R_g_v * cross(l/l_n, l_dot/l_n); %нормированная(единичная) угловая скорость движения цели в СК коптера
     %Omega = cross(l/l_n, l_dot/l_n);
     
@@ -23,5 +23,5 @@ function [a_y, telemetry, gamma_dot] = targeting_beard(r_t, dr_t, ddr_t, r_m, dr
         gamma_dot = sign(a_y)/V_g*sqrt(a_y^2+a_z^2);
        % gamma_dot = sign(a_z)/V_g*sqrt(a_x^2+a_y^2);
     end
-    telemetry = [Omega, [0 a_y a_z]', l_dot, l];
+    telemetry = [Omega(3); a_y; l_dot; l];
 %     telemetry = zeros(6, 1);
