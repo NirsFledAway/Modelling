@@ -1,13 +1,14 @@
 clc
 clear all
+close all
 
 global n;
 
 
-open('lab_2');
+open('lab_2_2020a');
 
 
-data = sim('lab_2');
+data = sim('lab_2_2020a');
 
 x_goal = data.X_goal.Data;
 y_goal = data.Y_goal.Data;

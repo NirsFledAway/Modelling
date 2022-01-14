@@ -1,17 +1,30 @@
-function [teta_c, u_1, u_2, err_p]=regul(state_, des_state_, k_pid, err_i, MAV)
+function [teta_c, u_1, u_2, err_p]=regul(state_, des_state_, err_i, mode, MAV)
 % Unpack signals
 state.p = state_(1:3);
 state.v = state_(4:6);
 state.euler = state_(7:9);
 state.omega = state_(10:12);
+state.acc = state_(13:15);
 
 des_state.p = des_state_(1:3);
 des_state.v = des_state_(4:6);
 des_state.acc = des_state_(7:9);
 
-k_theta = k_pid(1:3); %pid
-k_x =     k_pid(4:6);
-k_y =     k_pid(7:9);
+des_state.p
+
+% k_theta = k_pid(1:3); %pid
+% k_x =     k_pid(4:6);
+% k_y =     k_pid(7:9);
+k_theta = MAV.Reg.PID1;
+k_x     = MAV.Reg.PID2;
+k_y     = MAV.Reg.PID3;
+% 
+if mode(1) == 1
+    k_x = MAV.Reg.PID5;
+end
+if mode(2) == 1
+    k_y = MAV.Reg.PID4;
+end
 
 % Prepare coefficients
 J_z = MAV.J(3, 3);
@@ -43,8 +56,12 @@ u_2 = teta_ddot*J_z/K_m;
 u_2 = sign(u_2) * min(abs(u_2), u_max(2));
 % u_2 = 0;
 
-a_y = des_state.acc(2) + k_y(3)*err_v(3) + k_y(1)*cut_max(err_p(3), 3) + k_y(2)*err_i(3); 
-u_1 = (a_y + g)*MAV.mass/K_f;
+a_y = des_state.acc(2) + k_y(3)*err_v(3) + k_y(1)*cut_max(err_p(3), 3) + k_y(2)*err_i(3)
+err_v_y = err_v(3)
+err_p_y = err_p(3)
+err_i_y = err_i(3)
+% aa_y = k_y(4)*(des_state.acc(2) - state.acc(2)) + k_y(3)*err_v(3) + k_y(1)*cut_max(err_p(3), 3) + k_y(2)*err_i(3) 
+u_1 = (a_y + g)*MAV.mass/K_f
 
 u_1 = max(min(u_1, u_max(1)), 0);
 
