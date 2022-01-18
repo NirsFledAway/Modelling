@@ -6,11 +6,18 @@ close all
 utils
 
 % initial conditions
+MAV.pn0    = 81.9912;     % initial North position
+MAV.pe0    = 2.9914;     % initial Yg position
+MAV.pd0    = 0;     % initial Zg position
+MAV.u0     = 9.3678;     % initial velocity along body x-axis
+MAV.v0     = -3.4991;     % initial velocity along body y-axis
+
 MAV.pn0    = 0;     % initial North position
 MAV.pe0    = 30;     % initial Yg position
 MAV.pd0    = 0;     % initial Zg position
 MAV.u0     = 0;     % initial velocity along body x-axis
-MAV.v0     = 0;     % initial velocity along body y-axis
+MAV.v0     = 0;
+
 MAV.w0     = 0;     % initial velocity along body z-axis
 MAV.phi0 = 0; % initial roll angle
 MAV.psi0 = 0; % initial yaw angle
@@ -74,32 +81,32 @@ filter_freq = 2*pi*1000;
 
 % K_f = 5.2194e-10
 
-Reg.PID1 = [
-    200
-    0
-    10
-]';
-Reg.PID2 = [
-    14
-    0
-    5
-]';
-Reg.PID3 = [
-    85
-    0
-    60
-]';
-Reg.PID4 = [
-    0
-    0
-    10
-]';
-Reg.PID5 = [
-    0
-    0
-    5
-]';
-MAV.Reg = Reg;
+% Reg.PID1 = [
+%     200
+%     0
+%     10
+% ]';
+% Reg.PID2 = [
+%     14
+%     0
+%     5
+% ]';
+% Reg.PID3 = [
+%     85
+%     0
+%     60
+% ]';
+% Reg.PID4 = [
+%     0
+%     0
+%     10
+% ]';
+% Reg.PID5 = [
+%     0
+%     0
+%     5
+% ]';
+% MAV.Reg = Reg;
 
 % Modes
 Modes = struct()
@@ -162,11 +169,11 @@ Reg.PID3 = [
     0
     60
 ]';
-Reg.PID3_speed = [
-    0
-    0
-    60
-]';
+% Reg.PID3_speed = [
+%     0
+%     0
+%     60
+% ]';
 Modes.Stab_gently.Reg = Reg;
 Modes.Stab_gently.N = 3;
 
