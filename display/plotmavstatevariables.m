@@ -66,13 +66,15 @@ function plotMAVStateVariables(uu)
   u2 = uu(14);
   theta_c = rad2deg(uu(15));
   theta_c_dot = rad2deg(uu(16));
-  if theta_c_dot > 500
-      theta_c_dot;
-  end
   x_target = uu(17);
   y_target = uu(18);
 %   z_target = uu(19)
-    t           = uu(17 + 6);            % simulation time
+    v_x_target = uu(20);
+    v_y_target = uu(21);
+%     v_z_target = uu(22);
+    v_x_g = uu(26);
+    v_y_g = uu(27);
+    t           = uu(17 + 6 + 15);            % simulation time
 
     FPS = 100;
     persistent lastDrawTime
@@ -95,8 +97,8 @@ function plotMAVStateVariables(uu)
     create_graph_2params(pn, x_target, 'x', []);  % 1
     create_graph_2params(pe, y_target, 'y', []);  % 2
     create_graph_params(h, 'z', []);    % 3
-    create_graph_params(u, 'v_x', []);    % 4
-    create_graph_params(v, 'v_y', []);    % 5
+    create_graph_3params(v_x_g, v_x_target, u, 'v_x', []);    % 4
+    create_graph_3params(v_y_g, v_y_target, v, 'v_y', []);    % 5
     create_graph_params(w, 'v_z', []);    % 6
     create_graph_params(phi, '\phi', []);    % 7
     create_graph_params(psi, '\psi', []);    % 8
@@ -155,15 +157,29 @@ function handles = draw(variables, map, handles, t)
           subplot(size(variables, 1), size(variables, 2), curr);
           hold on;
           if ~isnan(param.val_desired)
-              handle = graph_y_yd(t, param);
+              if ~isnan(param.val_estimated)
+                  handle = graph_y_yhat_yd(t, param);
+              else
+                handle = graph_y_yd(t, param);
+              end
           else
               handle = graph_y(t, param);
           end
           idx = map(i,j);
           handles(idx).v = handle;
+          if i == 1 && j == 2
+              Lgnd = legend('show');
+            Lgnd.Position(1) = 0.9;
+            %     Lgnd.Position(2) = 0.4;
+            legend('basic', 'desired', 'local');    
+            end
         else
           if ~isnan(param.val_desired)
-              graph_y_yd(t, param);
+              if ~isnan(param.val_estimated)
+                handle = graph_y_yhat_yd(t, param);
+              else
+                handle = graph_y_yd(t, param);
+              end
           else
               graph_y(t, param);
           end
@@ -181,6 +197,10 @@ function pack = create_graph_params(val, name, handle)
 function pack = create_graph_2params(val, des_val, name, handle)
     pack = create_graph_params(val, name, handle);
     pack.val_desired = des_val;
+    
+function pack = create_graph_3params(val, des_val, est_val, name, handle)
+    pack = create_graph_2params(val, des_val, name, handle);
+    pack.val_estimated = est_val;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -208,7 +228,7 @@ function handle = graph_y_yd(t, params)
   handle = params.handle;
   if isempty(handle),
     handle(1)    = plot(t,y,'b');
-    handle(2)    = plot(t,yd,'g');
+    handle(2)    = plot(t,yd,'r');
     ylabel(lab)
     set(get(gca, 'YLabel'),'Rotation',0.0);
   else
@@ -231,13 +251,13 @@ function handle = graph_y_yhat_yd(t, params)
   yd = params.val_desired;
   lab = params.name;
   handle = params.handle;
-  t
+  t;
 
   % if isempty(handle) || length(handle) < 3,
   if t == 0
     handle(1)   = plot(t,y,'b');
-    handle(2)   = plot(t,yhat,'g--');
-    handle(3)   = plot(t,yd,'r-.');
+    handle(2)   = plot(t,yd,'r');
+    handle(3)   = plot(t,yhat, 'g');
     ylabel(lab)
     set(get(gca,'YLabel'),'Rotation',0.0);
   else
@@ -247,9 +267,9 @@ function handle = graph_y_yhat_yd(t, params)
     set(handle(1),'Xdata',[get(handle(1),'Xdata'),t]);
     set(handle(1),'Ydata',[get(handle(1),'Ydata'),y]);
     set(handle(2),'Xdata',[get(handle(2),'Xdata'),t]);
-    set(handle(2),'Ydata',[get(handle(2),'Ydata'),yhat]);
+    set(handle(2),'Ydata',[get(handle(2),'Ydata'),yd]);
     set(handle(3),'Xdata',[get(handle(3),'Xdata'),t]);
-    set(handle(3),'Ydata',[get(handle(3),'Ydata'),yd]);     
+    set(handle(3),'Ydata',[get(handle(3),'Ydata'),yhat]);     
     %drawnow
   end
 
