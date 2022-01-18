@@ -100,8 +100,8 @@ function plotMAVStateVariables(uu)
     create_graph_params(u1, 'u_1', []);          % 13
     create_graph_params(u2, 'u_2', []);          % 14
   ];
-  linear = [1 2 3; 4 5 6]';
-  angular = [7 8 9; 10 11 12]';
+  linear = [1 2; 4 5]';
+  angular = [9; 12]';
   % map = [1 2 3; 4 5 6]';
   map = [linear; angular; [13 14]];
 

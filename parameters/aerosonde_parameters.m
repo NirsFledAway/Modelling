@@ -156,8 +156,8 @@ Modes.Beard_targeting.N = 2;
 Reg = struct()
 Reg.PID1 = [
     200
-    0
-    10
+    80
+    40
 ]';
 Reg.PID2 = [
     14
@@ -169,11 +169,11 @@ Reg.PID3 = [
     0
     60
 ]';
-% Reg.PID3_speed = [
-%     0
-%     0
-%     60
-% ]';
+Reg.PID3_speed = [
+    0
+    0
+    60
+]';
 Modes.Stab_gently.Reg = Reg;
 Modes.Stab_gently.N = 3;
 

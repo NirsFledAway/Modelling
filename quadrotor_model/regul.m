@@ -34,7 +34,7 @@ else
         flight_mode.Reg.PID3 = MAV.Modes.Stab_gently.Reg.PID3;
     end
     if mode == 6
-%         flight_mode.Reg.PID3 = MAV.Modes.Stab_gently.Reg.PID3_speed;
+        flight_mode.Reg.PID3 = MAV.Modes.Stab_gently.Reg.PID3_speed;
     end
 end
 
@@ -46,9 +46,9 @@ end
 % end
 
 % mode
-k_theta = flight_mode.Reg.PID1
-k_x     = flight_mode.Reg.PID2
-k_y     = flight_mode.Reg.PID3
+k_theta = flight_mode.Reg.PID1;
+k_x     = flight_mode.Reg.PID2;
+k_y     = flight_mode.Reg.PID3;
 % state
 
 % Prepare coefficients
