@@ -13,7 +13,11 @@ function drawQuadrotor(uu)
     p        = uu(10);       % roll rate
     q        = uu(11);       % pitch rate     
     r        = uu(12);       % yaw rate  
-    t        = uu(16);       % time
+   
+    
+    t        = uu(17 + 6 + 15);       % time
+    x_target = uu(17 + 6 + 15 + 1);
+    y_target = uu(17 + 6 + 15 + 2);
 
     FPS = 30;
     persistent lastDrawTime
@@ -38,6 +42,7 @@ function drawQuadrotor(uu)
         [Vertices, Faces, facecolors] = defineQuadrotor;
         aircraft_handle = drawQuadrotorBody(Vertices,Faces,facecolors,...
                                                pn,pe,pd,phi,theta,psi,...
+                                               x_target, y_target, ...
                                                [],'normal');
         title('Aircraft')
         xlabel('Z (x)')
@@ -47,8 +52,8 @@ function drawQuadrotor(uu)
         view(120,20)
         x_size = 10;
         y_size = 10;
-        z_size = 3;
-        ctr = [100 0 0]';
+        z_size = 10;
+        ctr = [112 0 0]';
 %         самолетная система координат
         [center, s_size] = Utils.getCenter();
         set(gcf, 'Position', [center(3) 300 center(3) center(4)*2-300]);
@@ -59,6 +64,7 @@ function drawQuadrotor(uu)
     else 
         drawQuadrotorBody(Vertices,Faces,facecolors,...
                            pn,pe,pd,phi,theta,psi,...
+                           x_target, y_target, ...
                            aircraft_handle);
     end
 end
@@ -70,12 +76,18 @@ end
 %
 function handle = drawQuadrotorBody(V, F, patchcolors, ...
                                      pn, pe, pd, phi, theta, psi, ...
+                                     xt, yt, ...
                                      handle, mode)
 
   V = rotate(V', phi, theta, psi)';  % rotate Aircraft
 
   V = translate(V', pn, pe, pd)';  % translate Aircraft
   % transform vertices from NED to XYZ (for matlab rendering)
+  [Vt, Ft, Colort] = defineTarget();
+  Vt = translate(Vt', xt, yt, 0)';
+  V = [V; Vt];
+  F = [F; Ft];
+  patchcolors = [patchcolors; Colort];
   R = [...
       0, 1, 0; ...
       0, 0, 1; ...
@@ -178,6 +190,8 @@ nose = [
 ];
 nose = (nose .* [1 0.5 0.5] + [1 1 0]) * MAV.cockpit_side/2;
 
+david_star = (kube + [0 -1 0]) .* [1 0.2 1] * 1e3;
+
 V = [ ...
     cockpit;    % 1..8
     radius1;    % 9..16
@@ -189,6 +203,7 @@ V = [ ...
     motor + c(3,:);
     motor + c(4,:);
     motor + c(5,:);
+%     david_star;
 ];
 
 V = 1e-3 * V;   % мм -> м
@@ -238,6 +253,7 @@ F = [ ...
     motor_faces + size(motor, 1);
     motor_faces + size(motor, 1)*2;
     motor_faces + size(motor, 1)*3;
+%     motor_faces + size(motor, 1)*4; % цель посадки
 ];
     
 % define colors for each face 
@@ -262,4 +278,47 @@ F = [ ...
     repmat(right_color, 6, 1);...
     repmat(left_color, 6, 1);...
     ];
+end
+
+function [V,F,facecolors] = defineTarget()
+
+% X - вправо, Y - вверх, Z - на нас
+% по центру
+kube = [ ...
+   -1 1 -1;
+   1 1 -1;
+   1 1 1;
+   -1 1 1;
+   -1 -1 -1;
+   1 -1 -1;
+   1 -1 1;
+   -1 -1 1;
+];
+david_star = (kube + [0 -1 0]) .* [0.2 0.2 0.2];
+
+V = [ ...
+    david_star;
+];
+kube_faces = [...
+    1 2 3 4;
+    5 6 7 8;
+    1 2 6 5;
+    4 3 7 8;
+    2 6 7 3;
+    1 4 8 5;
+]
+F = [ ...
+    kube_faces + 77;
+];
+% define colors for each face 
+  colors.grey = [0.5 0.5 0.5];
+  myred = [1, 0, 0];
+  mygreen = [0, 1, 0];
+  myblue = [0, 0, 1];
+  myyellow = [1, 1, 0];
+  mycyan = [0, 1, 1];
+  % задаем цвет на каждую грань
+  facecolors = [...
+    repmat(colors.grey, 6, 1);...
+ ];
 end
