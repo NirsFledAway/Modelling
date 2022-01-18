@@ -166,12 +166,12 @@ Reg = struct()
 % ]';
 Reg.PID1 = [
     200
-    0
+    60
     10
 ]';
 Reg.PID2 = [
     14
-    0
+    6
     5
 ]';
 Reg.PID3 = [
