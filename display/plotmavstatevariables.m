@@ -65,7 +65,14 @@ function plotMAVStateVariables(uu)
   u1 = uu(13);
   u2 = uu(14);
   theta_c = rad2deg(uu(15));
-    t           = uu(16);            % simulation time
+  theta_c_dot = rad2deg(uu(16));
+  if theta_c_dot > 500
+      theta_c_dot;
+  end
+  x_target = uu(17);
+  y_target = uu(18);
+%   z_target = uu(19)
+    t           = uu(17 + 6);            % simulation time
 
     FPS = 100;
     persistent lastDrawTime
@@ -85,8 +92,8 @@ function plotMAVStateVariables(uu)
     % TODO: Vz не отображается
   % init schema
   variables_list = [
-    create_graph_params(pn, 'x', []);  % 1
-    create_graph_params(pe, 'y', []);  % 2
+    create_graph_2params(pn, x_target, 'x', []);  % 1
+    create_graph_2params(pe, y_target, 'y', []);  % 2
     create_graph_params(h, 'z', []);    % 3
     create_graph_params(u, 'v_x', []);    % 4
     create_graph_params(v, 'v_y', []);    % 5
@@ -96,12 +103,14 @@ function plotMAVStateVariables(uu)
     create_graph_2params(theta, theta_c, '\vartheta', []);    % 9
     create_graph_params(p, '\omega_x', []);    % 10
     create_graph_params(q, '\omega_y', []);    % 11
-    create_graph_params(r, '\omega_z', []);    % 12
+    create_graph_2params(r, theta_c_dot, '\omega_z', []);    % 12
     create_graph_params(u1, 'u_1', []);          % 13
     create_graph_params(u2, 'u_2', []);          % 14
   ];
-  linear = [1 2 3; 4 5 6]';
-  angular = [7 8 9; 10 11 12]';
+%   linear = [1 2 3; 4 5 6]';
+%   angular = [7 8 9; 10 11 12]';
+  linear = [1 2; 4 5]';
+  angular = [9; 12]';
   % map = [1 2 3; 4 5 6]';
   map = [linear; angular; [13 14]];
 

@@ -1,4 +1,4 @@
-function [teta_c, u_1, u_2, err_p]=regul(state_, des_state_, err_i, x, mode, MAV)
+function [teta_c, teta_c_dot, u_1, u_2, err_p]=regul(state_, des_state_, err_i, x, mode, MAV)
 % Unpack signals
 state.p = state_(1:3);
 state.v = state_(4:6);
@@ -34,7 +34,7 @@ else
         flight_mode.Reg.PID3 = MAV.Modes.Stab_gently.Reg.PID3;
     end
     if mode == 6
-%         flight_mode.Reg.PID3 = MAV.Modes.Stab_gently.Reg.PID3_speed;
+        flight_mode.Reg.PID3 = MAV.Modes.Stab_gently.Reg.PID3_speed;
     end
 end
 
@@ -46,9 +46,9 @@ end
 % end
 
 % mode
-k_theta = flight_mode.Reg.PID1
-k_x     = flight_mode.Reg.PID2
-k_y     = flight_mode.Reg.PID3
+k_theta = flight_mode.Reg.PID1;
+k_x     = flight_mode.Reg.PID2;
+k_y     = flight_mode.Reg.PID3;
 % state
 
 % Prepare coefficients
@@ -68,7 +68,12 @@ err_v = [0; des_state.v(1)-state.v(1); des_state.v(2)-state.v(2)]; % ошибк�
 
 a_x = des_state.acc(1) + k_x(3)*err_v(2) + k_x(1)*err_p(2) + k_x(2)*err_i(2);
 teta_c = -a_x/(g);
-teta_c_dot = - (k_x(1)*err_v(2)) / g;
+teta_c_dot = - k_x(1)*err_v(2) / g;
+% if rad2deg(abs(teta_c_dot)) > 500
+%     err_v(2)
+%     cut_max(err_v(2), 15)
+%     teta_c_dot
+% end
 % teta_c_dot = 0;
 teta_c = sign(teta_c) * min(abs(teta_c), deg2rad(20));
 % teta_c = 0;
@@ -76,7 +81,7 @@ teta_c = sign(teta_c) * min(abs(teta_c), deg2rad(20));
 err_p(1) = teta_c - state.euler(2);
 err_v(1) = teta_c_dot - state.omega(2);
 
-teta_ddot = 0 + k_theta(3)*err_v(1) + k_theta(1)*err_p(1) + k_theta(2)*err_i(1)
+teta_ddot = 0 + k_theta(3)*err_v(1) + k_theta(1)*err_p(1) + k_theta(2)*err_i(1);
 u_2 = teta_ddot*J_z/K_m;
 u_2 = sign(u_2) * min(abs(u_2), u_max(2));
 % u_2 = 0;
