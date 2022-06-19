@@ -12,11 +12,16 @@ MAV.pd0    = 0;     % initial Zg position
 MAV.u0     = 9.3678;     % initial velocity along body x-axis
 MAV.v0     = -3.4991;     % initial velocity along body y-axis
 
-MAV.pn0    = 0;     % initial North position
-MAV.pe0    = 30;     % initial Yg position
-MAV.pd0    = 0;     % initial Zg position
+MAV.x0    = 0;     % initial North position
+MAV.y0    = 30;     % для полета за целью
+% MAV.y0    = 2;      % для стабилизации на точке
+MAV.z0    = 0;     % initial Zg position
 MAV.u0     = 0;     % initial velocity along body x-axis
 MAV.v0     = 0;
+
+MAV.pn0 = MAV.x0;
+MAV.pe0 = MAV.y0;
+MAV.pd0 = MAV.z0;
 
 MAV.w0     = 0;     % initial velocity along body z-axis
 MAV.phi0 = 0; % initial roll angle
@@ -44,6 +49,8 @@ MAV.radius_a_x = MAV.radius_a*cos(45);
 MAV.cockpit_side = 70;  % длина стороны кабины-куба
 MAV.motor = [35 28];    % H, W параллелепипеда мотора
 
+MAV.rho = 1.19;
+
 % Пропеллер
 MAV.Prop.d = inch2met(5.1); % диаметр
 MAV.Prop.p = inch2met(4.5);   % шаг
@@ -55,6 +62,8 @@ MAV.Prop.Nb = 3;            % число лопастей
 MAV.Prop.S_approx = 5.5e-4; % m^2
 MAV.Prop.C_1 = 1.15;        % 1.15 .. 1.25 according to (p. 72): https://cyberleninka.ru/article/n/aerodinamicheskoe-soprotivlenie-ploho-obtekaemyh-tel/viewer
 MAV.Prop.J_y = 0;
+MAV.Prop.K_f = Gaurang(MAV.Prop, MAV.rho, 0);       % 1.6702e-08
+MAV.Prop.K_m = MAV.Prop.K_f * (MAV.radius_z*1e-3);
 
 % Мотор
 MAV.Motor.KV = 2400;
@@ -62,9 +71,9 @@ MAV.Motor.J_rotor = 6.8e-7;     % оценочный
 MAV.Motor.Umax = 4.2*4;         % 4S аккумулятор
 MAV.Motor.Nmax = MAV.Motor.KV*MAV.Motor.Umax*(0.9)  % приблизительная максимальная скорость вращения
 
-MAV.Motor
+MAV.Motor;
 
-MAV.rho = 1.19;
+MAV.Control.u_xz_max = 2 * (MAV.Motor.Nmax*0.9)^2;
 
 
 
@@ -79,8 +88,12 @@ MAV.J_inv = inv(MAV.J);
 
 filter_freq = 2*pi*1000;
 
-% K_f = 5.2194e-10
-
+%%% !!!Перенесено в get_pid_koeffs!!!
+% % Modes
+Modes = struct()
+% 
+% % Stabilize fast
+% Reg = struct()
 % Reg.PID1 = [
 %     200
 %     0
@@ -93,118 +106,105 @@ filter_freq = 2*pi*1000;
 % ]';
 % Reg.PID3 = [
 %     85
-%     0
-%     60
+%     85
+%     25
 % ]';
-% Reg.PID4 = [
-%     0
-%     0
-%     10
-% ]';
-% Reg.PID5 = [
-%     0
-%     0
-%     5
-% ]';
-% MAV.Reg = Reg;
-
-% Modes
-Modes = struct()
-
-% Stabilize fast
-Reg = struct()
-Reg.PID1 = [
-    200
-    0
-    10
-]';
-Reg.PID2 = [
-    14
-    0
-    5
-]';
-Reg.PID3 = [
-    85
-    85
-    25
-]';
-Modes.Stab_fast.Reg = Reg;
+% Modes.Stab_fast.Reg = Reg;
 Modes.Stab_fast.N = 0;
-
-% Flight on Beard targeting
+% 
+% % Flight on Beard targeting
 Modes.Targeting_1.N = 1;
-Reg = struct()
-Reg.PID1 = [
-    200
-    0
-    10
-]';
-Reg.PID2 = [
-    0
-    0
-    5
-]';
-Reg.PID3 = [
-    0
-    0
-    10
-]';
-Modes.Beard_targeting.Reg = Reg;
-Modes.Beard_targeting.N = 2;
-
-% Stabilize gently
-Reg = struct()
-% Reg.PID1 = [
-%     400
-%     0
-%     10
-% ]';
-% Reg.PID2 = [
-%     14
-%     0
-%     5
-% ]';
-Reg.PID1 = [
-    200
-    60
-    15
-]';
-Reg.PID2 = [
-    12
-    6
-    7
-]';
+% Reg = struct()
 % Reg.PID1 = [
 %     200
 %     0
 %     10
 % ]';
 % Reg.PID2 = [
-%     14
+%     0
 %     0
 %     5
 % ]';
-Reg.PID3 = [
-    85
-    0
-    60
-]';
-Reg.PID3_speed = [
-    0
-    0
-    60
-]';
-Modes.Stab_gently.Reg = Reg;
+% Reg.PID3 = [
+%     0
+%     0
+%     10
+% ]';
+% Modes.Beard_targeting.Reg = Reg;
+Modes.Beard_targeting.N = 2;
+% 
+% % Stabilize gently
+% Reg = struct()
+% % Reg.PID1 = [
+% %     400
+% %     0
+% %     10
+% % ]';
+% % Reg.PID2 = [
+% %     14
+% %     0
+% %     5
+% % ]';
+% Reg.PID1 = [
+%     200
+%     60
+%     15
+% ]';
+% Reg.PID2 = [
+%     12
+%     6
+%     7
+% ]';
+% % Reg.PID1 = [
+% %     200
+% %     0
+% %     10
+% % ]';
+% % Reg.PID2 = [
+% %     14
+% %     0
+% %     5
+% % ]';
+% Reg.PID3 = [
+%     85
+%     0
+%     60
+% ]';
+% Reg.PID3_speed = [
+%     0
+%     0
+%     60
+% ]';
+% Modes.Stab_gently.Reg = Reg;
 Modes.Stab_gently.N = 3;
-
+% 
 Modes.Soft_falling_1.Falling_speed = -0.3;
-
-% Sleep; (7)
-% Reg = struct();
-% Reg.PID1 = zeros(3,1);
-% Reg.PID2 = zeros(3,1);
-% Reg.PID3 = zeros(3,1);
-% Modes.Sleep.Reg = Reg;
-
+% 
+% % Sleep; (7)
+% % Reg = struct();
+% % Reg.PID1 = zeros(3,1);
+% % Reg.PID2 = zeros(3,1);
+% % Reg.PID3 = zeros(3,1);
+% % Modes.Sleep.Reg = Reg;
+% 
 MAV.Modes = Modes;
 
+% model_params
+function K_f = Gaurang(prop, rho, Va)
+    utils;
+    d = prop.d;
+    p = prop.p;
+    ed = prop.ed;
+    k = prop.Nb * prop.c_d / 2;
+    theta = atan(p/(pi*d));
+    %     lambda_c = Va./(Omega*d/2);
+    lambda_c = 0;
+
+    C_T = 4/3*k*theta*(1 - (1 - ed)^3) - ...
+          k*( sqrt((lambda_c + k).^2+k) - sqrt(k) ) * (1-(1-ed)^2);
+
+    K_f = 1/6*rho*pi*(ed*d/2)^4*C_T;
+    K_f = K_f * prop.K;
+    
+    K_f = K_f * (2*pi/60)^2;
+end

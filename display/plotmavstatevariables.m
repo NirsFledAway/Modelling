@@ -13,7 +13,7 @@ function plotMAVStateVariables(uu)
     idx_map = Utils.gen_idx([...
         12, ... % x
         4, ...  % u
-        2, ...  % theta, theta_c
+        2, ...  % internal - theta, theta_c
         9, ...  % desired
         15, ... % corrected x
         9 ...   % target state
@@ -102,7 +102,7 @@ function handles = draw(variables, map, handles, t)
   if t == 0
     figure(2), clf
     [center, s_size] = Utils.getCenter();
-    set(gcf, 'Position', [0 0 center(3) center(4)*2]);
+    set(gcf, 'Position', [0 0 center(3) center(4)*2-100]);
   end
 
   curr = 0;
@@ -221,7 +221,6 @@ function handle = graph_y_yhat_yd(t, params)
     ylabel(lab)
     set(get(gca,'YLabel'),'Rotation',0.0);
   else
-    disp('set')
     get(handle(1),'Xdata');
     set(handle(1),'Xdata',[get(handle(1),'Xdata'),t]);
     set(handle(1),'Ydata',[get(handle(1),'Ydata'),y]);

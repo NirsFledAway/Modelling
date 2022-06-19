@@ -16,3 +16,7 @@ SIM.end_time = 30;
 
 SAMPLE_TIME = inf;
 
+model_name = 'run_quadrotor_2020a';
+reg_set_path = [model_name '/REG'];
+SIM.model_params.reg_theta_path = [reg_set_path '/Тангаж (theta)']
+

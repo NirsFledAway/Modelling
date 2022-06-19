@@ -95,6 +95,8 @@ u_1 = (a_y + g)*MAV.mass/K_f;
 
 u_1 = max(min(u_1, u_max(1)), 0);
 
+
+
 % Считаем коэффициент силы (для линейной зависимости силы от N^2)
 function K_f = Gaurang(MAV)
     prop = MAV.Prop;

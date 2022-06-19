@@ -1,14 +1,14 @@
 function drawQuadrotor(uu)
     t        = uu(end);
-    FPS = 30;
-    persistent lastDrawTime
-    if isempty(lastDrawTime)
-        lastDrawTime = -inf;
-    end
-    if t - lastDrawTime < 1/FPS
-        return
-    end
-    lastDrawTime = t;
+%     FPS = 30;
+%     persistent lastDrawTime
+%     if isempty(lastDrawTime)
+%         lastDrawTime = -inf;
+%     end
+%     if t - lastDrawTime < 1/FPS
+%         return
+%     end
+%     lastDrawTime = t;
     idx_map = Utils.gen_idx([...
         12, ... % x
         4, ...  % u
@@ -92,7 +92,7 @@ function drawQuadrotor(uu)
         ctr = [112 0 0]';
 %         самолетная система координат
         [center, s_size] = Utils.getCenter();
-        set(gcf, 'Position', [center(3) 300 center(3) center(4)*2-300]);
+        set(gcf, 'Position', [center(3) 100 center(3) center(4)*2-300]);
         axis([-z_size + ctr(3), 0.3 + ctr(3),-x_size + ctr(1), 0.3 + ctr(1), -0.3+ctr(2), y_size + ctr(2)]);
         hold on
         
