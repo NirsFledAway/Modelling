@@ -1,24 +1,5 @@
 function drawQuadrotor(uu)
-
-    % process inputs to function
-    pn       = uu(1);       % inertial North position     
-    pe       = uu(2);       % inertial East position
-    pd       = uu(3);           
-    u        = uu(4);       
-    v        = uu(5);       
-    w        = uu(6);       
-    phi      = uu(7);       % roll angle         
-    theta    = uu(8);       % pitch angle     
-    psi      = uu(9);       % yaw angle     
-    p        = uu(10);       % roll rate
-    q        = uu(11);       % pitch rate     
-    r        = uu(12);       % yaw rate  
-   
-    
-    t        = uu(17 + 6 + 15);       % time
-    x_target = uu(17 + 6 + 15 + 1);
-    y_target = uu(17 + 6 + 15 + 2);
-
+    t        = uu(end);
     FPS = 30;
     persistent lastDrawTime
     if isempty(lastDrawTime)
@@ -28,6 +9,61 @@ function drawQuadrotor(uu)
         return
     end
     lastDrawTime = t;
+    idx_map = Utils.gen_idx([...
+        12, ... % x
+        4, ...  % u
+        2, ...  % theta, theta_c
+        9, ...  % desired
+        15, ... % corrected x
+        9 ...   % target state
+    ]);
+    
+    uu_cell = num2cell(uu);
+    
+    [
+        pn, pe, pd, ...
+        u, v, w, ...
+        phi, theta, psi, ...
+        p, q, r, ...
+    ] = uu_cell{idx_map{1}};
+    
+    % target object
+    target_idx = idx_map{6};
+    x_target = uu_cell{target_idx(1)};
+    y_target = uu_cell{target_idx(2)};
+
+%     phi = deg2rad(phi);
+%     theta = deg2rad(theta);
+%     psi = deg2rad(psi);
+
+%     % process inputs to function
+%     pn       = uu(1);       % inertial North position     
+%     pe       = uu(2);       % inertial East position
+%     pd       = uu(3);           
+%     u        = uu(4);       
+%     v        = uu(5);       
+%     w        = uu(6);       
+%     phi      = uu(7);       % roll angle         
+%     theta    = uu(8);       % pitch angle     
+%     psi      = uu(9);       % yaw angle     
+%     p        = uu(10);       % roll rate
+%     q        = uu(11);       % pitch rate     
+%     r        = uu(12);       % yaw rate  
+%    
+%     
+% %     t        = uu(17 + 6 + 15);       % time
+%     x_target = uu(17 + 6 + 15);
+%     y_target = uu(17 + 6 + 15 + 1);
+%     t        = uu(end);
+%     FPS = 30;
+%     persistent lastDrawTime
+%     if isempty(lastDrawTime)
+%         lastDrawTime = -inf;
+%     end
+%     if t - lastDrawTime < 1/FPS
+%         return
+%     end
+%     lastDrawTime = t;
 
     % define persistent variables 
     persistent aircraft_handle;
@@ -102,7 +138,7 @@ function handle = drawQuadrotorBody(V, F, patchcolors, ...
        grid on;
   else
     set(handle,'Vertices',V,'Faces',F);
-    drawnow
+    drawnow;
   end
 end
 
@@ -306,7 +342,7 @@ kube_faces = [...
     4 3 7 8;
     2 6 7 3;
     1 4 8 5;
-]
+];
 F = [ ...
     kube_faces + 77;
 ];

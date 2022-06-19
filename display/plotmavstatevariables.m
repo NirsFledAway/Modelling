@@ -1,82 +1,6 @@
 function plotMAVStateVariables(uu)
-%
-% modified 12/11/2009 - RB
-
-    % process inputs to function
-    % quadrotor model
-    pn          = uu(1);             % North position (meters)
-    pe          = uu(2);             % East position (meters)
-    h           = uu(3);             % altitude (meters)
-
-    u           = uu(4);             % body velocity along x-axis (meters/s)
-    v           = uu(5);             % body velocity along y-axis (meters/s)
-    w           = uu(6);             % body velocity along z-axis (meters/s)
-
-    phi         = 180/pi*uu(7);      % roll angle (degrees)   
-    theta       = 180/pi*uu(8);      % pitch angle (degrees)
-    psi         = 180/pi*uu(9);      % yaw angle (degrees)
-
-    p           = 180/pi*uu(10);     % body angular rate along x-axis (degrees/s)
-    q           = 180/pi*uu(11);     % body angular rate along y-axis (degrees/s)
-    r           = 180/pi*uu(12);     % body angular rate along z-axis (degrees/s)
-
-    % external inputs
-%     Va          = uu(13);            % airspeed (m/s)
-%     alpha       = 180/pi*uu(14);     % angle of attack (degrees)
-%     beta        = 180/pi*uu(15);     % side slip angle (degrees)
-%     wn          = uu(16);            % wind in the North direction
-%     we          = uu(17);            % wind in the East direction
-%     wd          = uu(18);            % wind in the Down direction
-%     pn_c        = uu(19);            % commanded North position (meters)
-%     pe_c        = uu(20);            % commanded East position (meters)
-%     h_c         = uu(21);            % commanded altitude (meters)
-%     Va_c        = uu(22);            % commanded airspeed (meters/s)
-%     alpha_c     = 180/pi*uu(23);     % commanded angle of attack (degrees)
-%     beta_c      = 180/pi*uu(24);     % commanded side slip angle (degrees)
-%     phi_c       = 180/pi*uu(25);     % commanded roll angle (degrees)   
-%     theta_c     = 180/pi*uu(26);     % commanded pitch angle (degrees)
-%     chi_c       = 180/pi*uu(27);     % commanded course (degrees)
-%     p_c         = 180/pi*uu(28);     % commanded body angular rate along x-axis (degrees/s)
-%     q_c         = 180/pi*uu(29);     % commanded body angular rate along y-axis (degrees/s)
-%     r_c         = 180/pi*uu(30);     % commanded body angular rate along z-axis (degrees/s)
-%     pn_hat      = uu(31);            % estimated North position (meters)
-%     pe_hat      = uu(32);            % estimated East position (meters)
-%     h_hat       = uu(33);            % estimated altitude (meters)
-%     Va_hat      = uu(34);            % estimated airspeed (meters/s)
-%     alpha_hat   = 180/pi*uu(35);     % estimated angle of attack (degrees)
-%     beta_hat    = 180/pi*uu(36);     % estimated side slip angle (degrees)
-%     phi_hat     = 180/pi*uu(37);     % estimated roll angle (degrees)   
-%     theta_hat   = 180/pi*uu(38);     % estimated pitch angle (degrees)
-%     chi_hat     = 180/pi*uu(39);     % estimated course (degrees)
-%     p_hat       = 180/pi*uu(40);     % estimated body angular rate along x-axis (degrees/s)
-%     q_hat       = 180/pi*uu(41);     % estimated body angular rate along y-axis (degrees/s)
-%     r_hat       = 180/pi*uu(42);     % estimated body angular rate along z-axis (degrees/s)
-% %    Vg_hat      = uu(43);            % estimated groundspeed
-% %    wn_hat      = uu(44);            % estimated North wind
-% %    we_hat      = uu(45);            % estimated East wind
-% %    psi_hat     = 180/pi*uu(46);     % estimated heading
-% %    bx_hat      = uu(47);            % estimated x-gyro bias
-% %    by_hat      = uu(48);            % estimated y-gyro bias
-% %    bz_hat      = uu(49);            % estimated z-gyro bias
-%     delta_e     = 180/pi*uu(50);     % elevator angle (degrees)
-%     delta_a     = 180/pi*uu(51);     % aileron angle (degrees)
-%     delta_r     = 180/pi*uu(52);     % rudder angle (degrees)
-%     delta_t     = uu(53);            % throttle setting (unitless)
-  u1 = uu(13);
-  u2 = uu(14);
-  theta_c = rad2deg(uu(15));
-  theta_c_dot = rad2deg(uu(16));
-  x_target = uu(17);
-  y_target = uu(18);
-%   z_target = uu(19)
-    v_x_target = uu(20);
-    v_y_target = uu(21);
-%     v_z_target = uu(22);
-    v_x_g = uu(26);
-    v_y_g = uu(27);
-    t           = uu(17 + 6 + 15);            % simulation time
-
-    FPS = 100;
+    FPS = 30;
+    t = uu(end);
     persistent lastDrawTime
     if isempty(lastDrawTime)
         lastDrawTime = -inf;
@@ -85,11 +9,47 @@ function plotMAVStateVariables(uu)
         return
     end
     lastDrawTime = t;
-    
 
+    idx_map = Utils.gen_idx([...
+        12, ... % x
+        4, ...  % u
+        2, ...  % theta, theta_c
+        9, ...  % desired
+        15, ... % corrected x
+        9 ...   % target state
+    ]);
     
-    % compute course angle
-    % chi = 180/pi*atan2(Va*sin(psi)+we, Va*cos(psi)+wn);
+    uu_cell = num2cell(uu);
+    
+    [
+        pn, pe, h, ...
+        u, v, w, ...
+        phi, theta, psi, ...
+        p, q, r, ...
+    ] = uu_cell{idx_map{1}};
+    
+    [ u1, u_x, u_y, u2 ] = uu_cell{idx_map{2}};
+    
+    [theta_c, theta_c_dot] = uu_cell{idx_map{3}};
+    
+    corrected_state_idx = idx_map{5};
+    [v_x_g, v_y_g] = uu_cell{corrected_state_idx(4:5)};
+    
+    % desired values
+    target_idx = idx_map{4};
+    x_target = uu_cell{target_idx(1)};
+    y_target = uu_cell{target_idx(2)};
+    v_x_target = uu_cell{target_idx(4)};
+    v_y_target = uu_cell{target_idx(5)};
+
+    angles_deg = rad2deg([phi theta psi p q r theta_c theta_c_dot]);
+    angles_deg_cell = num2cell(angles_deg);
+    [...
+        phi, theta, psi, ...
+        p, q, r, ...
+        theta_c, theta_c_dot, ...
+    ] = angles_deg_cell{:};
+    
 
     % TODO: Vz не отображается
   % init schema
@@ -117,7 +77,7 @@ function plotMAVStateVariables(uu)
   map = [linear; angular; [13 14]];
 
   % init params
-  persistent handles
+  persistent handles;
 
   [variables, handles] = init_variables(variables_list, map, handles);
 
@@ -262,8 +222,7 @@ function handle = graph_y_yhat_yd(t, params)
     set(get(gca,'YLabel'),'Rotation',0.0);
   else
     disp('set')
-    handle
-    get(handle(1),'Xdata')
+    get(handle(1),'Xdata');
     set(handle(1),'Xdata',[get(handle(1),'Xdata'),t]);
     set(handle(1),'Ydata',[get(handle(1),'Ydata'),y]);
     set(handle(2),'Xdata',[get(handle(2),'Xdata'),t]);
@@ -290,5 +249,14 @@ function out=sat(in, low, high)
   end
 
 % end sat  
+
+% function vals = gen_idx(sizes)
+%     vals = cell(length(sizes), 1);
+%     prevIdx = 1;
+%     for i = 1:length(sizes)
+%         nextIdx = prevIdx + sizes(i);
+%         vals{i} = (prevIdx : nextIdx - 1);
+%         prevIdx = nextIdx;
+%     end
 
 
