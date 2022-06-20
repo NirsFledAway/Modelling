@@ -189,6 +189,8 @@ Modes.Soft_falling_1.Falling_speed = -0.3;
 % 
 MAV.Modes = Modes;
 
+targeting_method_select = 3;
+
 % model_params
 function K_f = Gaurang(prop, rho, Va)
     utils;
