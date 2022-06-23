@@ -71,6 +71,9 @@ function drawQuadrotor(uu)
     persistent Faces
     persistent facecolors
     
+    x_size = 10;
+    y_size = 10;
+    z_size = 10;
         
     % Init
     if t==0
@@ -86,10 +89,9 @@ function drawQuadrotor(uu)
         zlabel('Y (z)')
 %         view(135,35)  % set the view angle for figure
         view(120,20)
-        x_size = 10;
-        y_size = 10;
-        z_size = 10;
+
         ctr = [112 0 0]';
+        ylim("manual")
 %         самолетная система координат
         [center, s_size] = Utils.getCenter();
         set(gcf, 'Position', [center(3) 100 center(3) center(4)*2-300]);
@@ -102,6 +104,14 @@ function drawQuadrotor(uu)
                            pn,pe,pd,phi,theta,psi,...
                            x_target, y_target, ...
                            aircraft_handle);
+    end
+    need_follow_quad = 1;
+    if need_follow_quad
+        ctr = [pn pe pd]';
+        hold off;
+%         ylim("auto")
+       axis([-z_size + ctr(3), 0.3 + ctr(3),-x_size + ctr(1), 0.3 + ctr(1), -0.3+ctr(2), y_size + ctr(2)]); 
+               hold on
     end
 end
 

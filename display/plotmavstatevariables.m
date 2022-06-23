@@ -22,10 +22,10 @@ function plotMAVStateVariables(uu)
     uu_cell = num2cell(uu);
     
     [
-        pn, pe, h, ...
-        u, v, w, ...
+        x, y, z, ...
+        v_x, v_y, v_z, ...
         phi, theta, psi, ...
-        p, q, r, ...
+        w_x, w_y, w_z, ...
     ] = uu_cell{idx_map{1}};
     
     [ u1, u_x, u_y, u2 ] = uu_cell{idx_map{2}};
@@ -42,32 +42,40 @@ function plotMAVStateVariables(uu)
     v_x_target = uu_cell{target_idx(4)};
     v_y_target = uu_cell{target_idx(5)};
 
-    angles_deg = rad2deg([phi theta psi p q r theta_c theta_c_dot]);
+    angles_deg = rad2deg([phi theta psi w_x w_y w_z theta_c theta_c_dot]);
     angles_deg_cell = num2cell(angles_deg);
     [...
         phi, theta, psi, ...
-        p, q, r, ...
+        w_x w_y w_z, ...
         theta_c, theta_c_dot, ...
     ] = angles_deg_cell{:};
+
     
+    g = 9.81;
 
     % TODO: Vz не отображается
   % init schema
   variables_list = [
-    create_graph_2params(pn, x_target, 'x', []);  % 1
-    create_graph_2params(pe, y_target, 'y', []);  % 2
-    create_graph_params(h, 'z', []);    % 3
-    create_graph_3params(v_x_g, v_x_target, u, 'v_x', []);    % 4
-    create_graph_3params(v_y_g, v_y_target, v, 'v_y', []);    % 5
-    create_graph_params(w, 'v_z', []);    % 6
+    create_graph_2params(x, x_target, 'x', []);  % 1
+    create_graph_2params(y, y_target, 'y', []);  % 2
+    create_graph_params(z, 'z', []);    % 3
+    create_graph_3params(v_x_g, v_x_target, v_x, 'v_x', []);    % 4
+    create_graph_3params(v_y_g, v_y_target, v_y, 'v_y', []);    % 5
+    create_graph_params(v_z, 'v_z', []);    % 6
     create_graph_params(phi, '\phi', []);    % 7
     create_graph_params(psi, '\psi', []);    % 8
     create_graph_2params(theta, theta_c, '\vartheta', []);    % 9
-    create_graph_params(p, '\omega_x', []);    % 10
-    create_graph_params(q, '\omega_y', []);    % 11
-    create_graph_2params(r, theta_c_dot, '\omega_z', []);    % 12
+    create_graph_params(w_x, '\omega_x', []);    % 10
+    create_graph_params(w_y, '\omega_y', []);    % 11
+    create_graph_2params(w_z, theta_c_dot, '\omega_z', []);    % 12
     create_graph_params(u1, 'u_1', []);          % 13
     create_graph_params(u2, 'u_2', []);          % 14
+    create_graph_2params(-g*sin(theta), w_z*v_y - w_y*v_z -g*sin(theta),'v_d_dot', []);          % 15
+    create_graph_2params(w_x*v_z - w_z*v_x, w_y*v_x - w_x*v_y ,'v_y_dot, v_z_dot coriolis', []);          % 16
+    create_graph_2params(-g*sin(theta), w_z*v_y - w_y*v_z -g*sin(theta),'v_d_dot', []);          % 17
+    create_graph_2params(w_x, w_x - cos(phi)*tan(theta)*w_y + sin(phi)*tan(theta)*w_z ,'w_x, phi_dot', []);          % 18
+    create_graph_2params(w_y, cos(phi)*(1/cos(theta))*w_y - sin(phi)*(1/cos(theta))*w_z ,'w_x, psi_dot', []);          % 19
+    create_graph_2params(w_z, sin(phi)*w_y + cos(phi)*w_z ,'w_z, theta_dot', []);          % 21
   ];
 %   linear = [1 2 3; 4 5 6]';
 %   angular = [7 8 9; 10 11 12]';
@@ -75,6 +83,7 @@ function plotMAVStateVariables(uu)
   angular = [9; 12]';
   % map = [1 2 3; 4 5 6]';
   map = [linear; angular; [13 14]];
+  map = [map(:, 1), map(:, 2), [15 18; 16 19; 17 20; 1 1]];
 
   % init params
   persistent handles;
