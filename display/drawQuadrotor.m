@@ -71,9 +71,22 @@ function drawQuadrotor(uu)
     persistent Faces
     persistent facecolors
     
-    x_size = 10;
-    y_size = 10;
-    z_size = 10;
+%     x_size = 10;
+%     y_size = 10;
+%     z_size = 10;
+        x_size = 1;
+    y_size = 1;
+    z_size = 1;
+    
+    need_follow_quad = 1;
+    if need_follow_quad
+        ctr = [pn pe pd]';
+%         hold off;
+%         ylim("auto")
+%        axis([-z_size + ctr(3), 0.3 + ctr(3),-x_size + ctr(1), 0.3 + ctr(1), -0.3+ctr(2), y_size + ctr(2)]); 
+       axis([ctr(3)-z_size/2, ctr(3) + z_size/2, ctr(1) - x_size/2, ctr(1) + x_size/2, ctr(2) - y_size/2, ctr(2) + y_size/2]);
+%                hold on
+    end
         
     % Init
     if t==0
@@ -90,29 +103,34 @@ function drawQuadrotor(uu)
 %         view(135,35)  % set the view angle for figure
         view(120,20)
 
-        ctr = [112 0 0]';
-        ylim("manual")
+%         ctr = [112 0 0]';
+%         ylim("manual")
 %         самолетная система координат
         [center, s_size] = Utils.getCenter();
         set(gcf, 'Position', [center(3) 100 center(3) center(4)*2-300]);
-        axis([-z_size + ctr(3), 0.3 + ctr(3),-x_size + ctr(1), 0.3 + ctr(1), -0.3+ctr(2), y_size + ctr(2)]);
-        hold on
+%         axis([-z_size + ctr(3), 0.3 + ctr(3),-x_size + ctr(1), 0.3 + ctr(1), -0.3+ctr(2), y_size + ctr(2)]);
+%         hold on
+%     ctr = [pn pe pd]';
+%     axis([ctr(3)-z_size/2, ctr(3) + z_size/2, ctr(1) - x_size/2, ctr(1) + x_size/2, ctr(2) - y_size/2, ctr(2) + y_size/2]);
+    
         
     % at every other time step, redraw base and rod
     else 
+        
         drawQuadrotorBody(Vertices,Faces,facecolors,...
                            pn,pe,pd,phi,theta,psi,...
                            x_target, y_target, ...
                            aircraft_handle);
+%        ax = gca;
+%        ctr = [pn pe pd]';
+%        ax.XLim = [ctr(3)-z_size/2, ctr(3) + z_size/2];
+%        ax.YLim=[ctr(1)-x_size/2, ctr(1) + x_size/2];
+%        ax.ZLim=[ctr(2)-y_size/2, ctr(2) + y_size/2];
+%     ax.CameraTarget = [pn pe pd];
+%     ax.CameraViewAngle = 15;
+%     
     end
-    need_follow_quad = 1;
-    if need_follow_quad
-        ctr = [pn pe pd]';
-        hold off;
-%         ylim("auto")
-       axis([-z_size + ctr(3), 0.3 + ctr(3),-x_size + ctr(1), 0.3 + ctr(1), -0.3+ctr(2), y_size + ctr(2)]); 
-               hold on
-    end
+
 end
 
 %=======================================================================

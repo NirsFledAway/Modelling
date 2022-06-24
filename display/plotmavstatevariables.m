@@ -28,7 +28,7 @@ function plotMAVStateVariables(uu)
         w_x, w_y, w_z, ...
     ] = uu_cell{idx_map{1}};
     
-    [ u1, u_x, u_y, u2 ] = uu_cell{idx_map{2}};
+    [ u1, u_x, u_y, u_z ] = uu_cell{idx_map{2}};
     
     [theta_c, theta_c_dot] = uu_cell{idx_map{3}};
     
@@ -69,21 +69,23 @@ function plotMAVStateVariables(uu)
     create_graph_params(w_y, '\omega_y', []);    % 11
     create_graph_2params(w_z, theta_c_dot, '\omega_z', []);    % 12
     create_graph_params(u1, 'u_1', []);          % 13
-    create_graph_params(u2, 'u_2', []);          % 14
-    create_graph_2params(-g*sin(theta), w_z*v_y - w_y*v_z -g*sin(theta),'v_d_dot', []);          % 15
-    create_graph_2params(w_x*v_z - w_z*v_x, w_y*v_x - w_x*v_y ,'v_y_dot, v_z_dot coriolis', []);          % 16
-    create_graph_2params(-g*sin(theta), w_z*v_y - w_y*v_z -g*sin(theta),'v_d_dot', []);          % 17
-    create_graph_2params(w_x, w_x - cos(phi)*tan(theta)*w_y + sin(phi)*tan(theta)*w_z ,'w_x, phi_dot', []);          % 18
-    create_graph_2params(w_y, cos(phi)*(1/cos(theta))*w_y - sin(phi)*(1/cos(theta))*w_z ,'w_x, psi_dot', []);          % 19
-    create_graph_2params(w_z, sin(phi)*w_y + cos(phi)*w_z ,'w_z, theta_dot', []);          % 21
+    create_graph_params(u_x, 'u_x', []);          % 14
+    create_graph_params(u_y, 'u_y', []);          % 15
+    create_graph_params(u_z, 'u_z', []);          % 16
+%     create_graph_2params(-g*sin(theta), w_z*v_y - w_y*v_z -g*sin(theta),'v_d_dot', []);          % 15
+%     create_graph_2params(w_x*v_z - w_z*v_x, w_y*v_x - w_x*v_y ,'v_y_dot, v_z_dot coriolis', []);          % 16
+%     create_graph_2params(-g*sin(theta), w_z*v_y - w_y*v_z -g*sin(theta),'v_d_dot', []);          % 17
+%     create_graph_2params(w_x, w_x - cos(phi)*tan(theta)*w_y + sin(phi)*tan(theta)*w_z ,'w_x, phi_dot', []);          % 18
+%     create_graph_2params(w_y, cos(phi)*(1/cos(theta))*w_y - sin(phi)*(1/cos(theta))*w_z ,'w_x, psi_dot', []);          % 19
+%     create_graph_2params(w_z, sin(phi)*w_y + cos(phi)*w_z ,'w_z, theta_dot', []);          % 21
   ];
-%   linear = [1 2 3; 4 5 6]';
-%   angular = [7 8 9; 10 11 12]';
-  linear = [1 2; 4 5]';
-  angular = [9; 12]';
-  % map = [1 2 3; 4 5 6]';
-  map = [linear; angular; [13 14]];
-  map = [map(:, 1), map(:, 2), [15 18; 16 19; 17 20; 1 1]];
+  linear = [1 2 3; 4 5 6];
+  angular = [7 8 9; 10 11 12];
+  % linear = [1 2; 4 5]';
+  % angular = [9; 12]';
+%   map = [1 2 3; 4 5 6]';
+  map = [linear; angular; [13 1 1; 14 15 16]];
+%   map = [map(:, 1), map(:, 2), [15 18; 16 19; 17 20; 1 1]];
 
   % init params
   persistent handles;

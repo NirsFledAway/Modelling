@@ -6,14 +6,14 @@ close all
 utils
 
 % initial conditions
-MAV.pn0    = 81.9912;     % initial North position
-MAV.pe0    = 2.9914;     % initial Yg position
+MAV.pn0    = 0;     % initial North position
+MAV.pe0    = 0;     % initial Yg position
 MAV.pd0    = 0;     % initial Zg position
-MAV.u0     = 9.3678;     % initial velocity along body x-axis
-MAV.v0     = -3.4991;     % initial velocity along body y-axis
+MAV.u0     = 0;     % initial velocity along body x-axis
+MAV.v0     = 0;     % initial velocity along body y-axis
 
 MAV.x0    = 0;     % initial North position
-MAV.y0    = 30;     % для полета за целью
+MAV.y0    = 0;     % для полета за целью
 % MAV.y0    = 2;      % для стабилизации на точке
 MAV.z0    = 0;     % initial Zg position
 MAV.u0     = 0;     % initial velocity along body x-axis
@@ -64,12 +64,16 @@ MAV.Prop.C_1 = 1.15;        % 1.15 .. 1.25 according to (p. 72): https://cyberle
 MAV.Prop.J_y = 0;
 MAV.Prop.K_f = Gaurang(MAV.Prop, MAV.rho, 0);       % 1.6702e-08
 MAV.Prop.K_m = MAV.Prop.K_f * (MAV.radius_z*1e-3);
+MAV.Prop.C_aerial_momentum = 8.7300e-11;    % M = C*(Omega - a)^2 + b; см. Multirotor/RPM_detector/drag_momentum
+MAV.Prop.A_drift = -4.8272e+03;
+MAV.Prop.B_drift = -0.0023;
 
 % Мотор
 MAV.Motor.KV = 2400;
 MAV.Motor.J_rotor = 6.8e-7;     % оценочный
 MAV.Motor.Umax = 4.2*4;         % 4S аккумулятор
 MAV.Motor.Nmax = MAV.Motor.KV*MAV.Motor.Umax*(0.9)  % приблизительная максимальная скорость вращения
+MAV.Motor.T = 3.5/1000; % 0.007 по прикидкам статьи на медленный мотор, наш примерно в 1.5-2 раза рещще.
 
 MAV.Motor;
 
