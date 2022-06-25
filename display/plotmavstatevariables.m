@@ -1,5 +1,5 @@
 function plotMAVStateVariables(uu)
-    FPS = 30;
+    FPS = 60;
     t = uu(end);
     persistent lastDrawTime
     if isempty(lastDrawTime)

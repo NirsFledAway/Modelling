@@ -24,9 +24,9 @@ MAV.pe0 = MAV.y0;
 MAV.pd0 = MAV.z0;
 
 MAV.w0     = 0;     % initial velocity along body z-axis
-MAV.phi0 = 0; % initial roll angle
-MAV.psi0 = 0; % initial yaw angle
-MAV.theta0 =  0; % initial pitch angle
+MAV.phi0 = -deg2rad(20); % initial roll angle
+MAV.psi0 = -deg2rad(20); % initial yaw angle
+MAV.theta0 = deg2rad(20); % initial pitch angle
 e = Euler2Quaternion(MAV.phi0, MAV.theta0, MAV.psi0);
 MAV.e0     = e(1);  % initial quaternion
 MAV.e1     = e(2);
