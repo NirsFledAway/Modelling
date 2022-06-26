@@ -62,11 +62,12 @@ function [Fb, Mb] = forces_moments(t,x,uu, MAV, cache)
     
     % Forces
     f_gravity = R_g_b * [0; MAV.mass*(-MAV.gravity); 0];
-    f_resistance = [0; 0; 0];
     f = Gaurang(N, MAV.Prop, MAV.rho, x(5));
     f_thrust = [0 1 0]' * sum(f);
 %     P_thrust = [0; 1; 0] * sum(f_thrust);   % тяго
-    Fb = f_gravity + f_resistance + f_thrust;    % результирующая сил в связанной СК
+    wind = R_g_b * MAV.Env.Wind_speed;
+    f_aerial_drag = AerialDrag(x(4:6), wind, MAV.rho, MAV.Body.S, MAV.Body.C_aerial_drag_1);
+    Fb = f_gravity + f_aerial_drag + f_thrust;    % результирующая сил в связанной СК
 
     % Moments
     
@@ -91,6 +92,9 @@ function [Fb, Mb] = forces_moments(t,x,uu, MAV, cache)
         0;
         ( f(1) + f(2) - (f(3) + f(4)) ) * MAV.radius_x*1e-3;
     ];
+
+    
+
     Mb = M_gyro + M_traction + M_motors;
 end
 
@@ -131,4 +135,11 @@ function M = PropellerAeroMomentumPlain(N, prop, rho)
     F = 1/2 * rho * S * C * (prop.d/2*Omega).^2;
     m_p = 3/4;      % точка приложения момента воздухом к винту
     M = F * (prop.d/2 * m_p);
+end
+
+% Сила аэродинамического сопротивления
+function F = AerialDrag(v, w, rho, S, C)
+    V = w + v;  % w - wind, v - vehicle speed;
+    % S - характерная площадь
+    F = - C * rho * V.^2/2 .* S;
 end

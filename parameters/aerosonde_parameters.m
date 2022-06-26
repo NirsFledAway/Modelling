@@ -24,9 +24,9 @@ MAV.pe0 = MAV.y0;
 MAV.pd0 = MAV.z0;
 
 MAV.w0     = 0;     % initial velocity along body z-axis
-MAV.phi0 = -deg2rad(20); % initial roll angle
-MAV.psi0 = -deg2rad(20); % initial yaw angle
-MAV.theta0 = deg2rad(20); % initial pitch angle
+MAV.phi0 = 0; % initial roll angle
+MAV.psi0 = 0; % initial yaw angle
+MAV.theta0 = 0; % initial pitch angle
 e = Euler2Quaternion(MAV.phi0, MAV.theta0, MAV.psi0);
 MAV.e0     = e(1);  % initial quaternion
 MAV.e1     = e(2);
@@ -48,6 +48,9 @@ MAV.radius_a = 6;      % размер квадратного сечения лу
 MAV.radius_a_x = MAV.radius_a*cos(45);
 MAV.cockpit_side = 70;  % длина стороны кабины-куба
 MAV.motor = [35 28];    % H, W параллелепипеда мотора
+
+MAV.Body.S = [5573 59852 6884] / (100*10)^2; % характерная площать квадра по осям в м^2
+MAV.Body.C_aerial_drag_1 = 1.0; % 0.2 .. 1.2 Аэродинамическоий коэффициент сопротивления
 
 MAV.rho = 1.19;
 
@@ -79,7 +82,12 @@ MAV.Motor;
 
 MAV.Control.u_xz_max = 2 * (MAV.Motor.Nmax*0.9)^2;
 
-
+% Environment
+MAV.Env.Wind_speed = [
+    0
+    0
+    0
+];
 
 % MAV.J = diag([MAV.Jx MAV.Jy MAV.Jz]);
 % MAV.J = [ ...
