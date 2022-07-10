@@ -1,14 +1,15 @@
 function drawQuadrotor(uu)
     t        = uu(end);
-%     FPS = 30;
-%     persistent lastDrawTime
-%     if isempty(lastDrawTime)
-%         lastDrawTime = -inf;
-%     end
-%     if t - lastDrawTime < 1/FPS
-%         return
-%     end
-%     lastDrawTime = t;
+    FPS = 20;
+    persistent lastDrawTime
+    if isempty(lastDrawTime)
+        lastDrawTime = -inf;
+    end
+    if t - lastDrawTime < 1/FPS
+        return
+    end
+    lastDrawTime = t;
+    
     idx_map = Utils.gen_idx([...
         12, ... % x
         4, ...  % u
@@ -21,116 +22,63 @@ function drawQuadrotor(uu)
     uu_cell = num2cell(uu);
     
     [
-        pn, pe, pd, ...
-        u, v, w, ...
+        x, y, z, ...
+        vx, vy, vz, ...
         phi, theta, psi, ...
-        p, q, r, ...
+        wx, wy, wz, ...
     ] = uu_cell{idx_map{1}};
     
     % target object
     target_idx = idx_map{6};
     x_target = uu_cell{target_idx(1)};
     y_target = uu_cell{target_idx(2)};
-
-%     phi = deg2rad(phi);
-%     theta = deg2rad(theta);
-%     psi = deg2rad(psi);
-
-%     % process inputs to function
-%     pn       = uu(1);       % inertial North position     
-%     pe       = uu(2);       % inertial East position
-%     pd       = uu(3);           
-%     u        = uu(4);       
-%     v        = uu(5);       
-%     w        = uu(6);       
-%     phi      = uu(7);       % roll angle         
-%     theta    = uu(8);       % pitch angle     
-%     psi      = uu(9);       % yaw angle     
-%     p        = uu(10);       % roll rate
-%     q        = uu(11);       % pitch rate     
-%     r        = uu(12);       % yaw rate  
-%    
-%     
-% %     t        = uu(17 + 6 + 15);       % time
-%     x_target = uu(17 + 6 + 15);
-%     y_target = uu(17 + 6 + 15 + 1);
-%     t        = uu(end);
-%     FPS = 30;
-%     persistent lastDrawTime
-%     if isempty(lastDrawTime)
-%         lastDrawTime = -inf;
-%     end
-%     if t - lastDrawTime < 1/FPS
-%         return
-%     end
-%     lastDrawTime = t;
+    z_target = uu_cell{target_idx(3)};
+    
+    aircraft_state = struct('x', x, 'y', y, 'z', z, 'phi', phi, 'theta', theta, 'psi', psi);
+    target_state = struct('x', x_target, 'y', y_target, 'z', z_target);
 
     % define persistent variables 
     persistent aircraft_handle;
-    persistent Vertices
-    persistent Faces
-    persistent facecolors
+    persistent Aircraft
+    persistent Target
     
-%     x_size = 10;
-%     y_size = 10;
-%     z_size = 10;
-        x_size = 1;
-    y_size = 1;
-    z_size = 1;
-    
+    % Must be before drawing to prevent jumps and make atimation glider
     need_follow_quad = 1;
-    if need_follow_quad
-        ctr = [pn pe pd]';
-%         hold off;
-%         ylim("auto")
-%        axis([-z_size + ctr(3), 0.3 + ctr(3),-x_size + ctr(1), 0.3 + ctr(1), -0.3+ctr(2), y_size + ctr(2)]); 
-       axis([ctr(3)-z_size/2, ctr(3) + z_size/2, ctr(1) - x_size/2, ctr(1) + x_size/2, ctr(2) - y_size/2, ctr(2) + y_size/2]);
-%                hold on
+    if need_follow_quad && ~isempty(aircraft_handle)
+        ctr = [x y z]';
+        x_size = 1;
+        y_size = 1;
+        z_size = 1;
+        set(aircraft_handle.Parent, 'XLim', [ctr(3)-z_size/2, ctr(3) + z_size/2], ...
+            'YLim', [ctr(1) - x_size/2, ctr(1) + x_size/2], ...
+            'ZLim', [ctr(2) - y_size/2, ctr(2) + y_size/2]);
     end
-        
+ 
     % Init
-    if t==0
+    if t == 0
         figure(1), clf
         [Vertices, Faces, facecolors] = defineQuadrotor;
-        aircraft_handle = drawQuadrotorBody(Vertices,Faces,facecolors,...
-                                               pn,pe,pd,phi,theta,psi,...
-                                               x_target, y_target, ...
-                                               [],'normal');
+        Aircraft = struct('V', Vertices, 'F', Faces, 'C', facecolors);
+        [Vertices, Faces, facecolors] = defineTarget;
+        Target = struct('V', Vertices, 'F', Faces, 'C', facecolors);
+        
         title('Aircraft')
         xlabel('Z (x)')
         ylabel('X (y)')
         zlabel('Y (z)')
-%         view(135,35)  % set the view angle for figure
         view(120,20)
-
-%         ctr = [112 0 0]';
-%         ylim("manual")
-%         самолетная система координат
+        
         [center, s_size] = Utils.getCenter();
         set(gcf, 'Position', [center(3) 100 center(3) center(4)*2-300]);
-%         axis([-z_size + ctr(3), 0.3 + ctr(3),-x_size + ctr(1), 0.3 + ctr(1), -0.3+ctr(2), y_size + ctr(2)]);
-%         hold on
-%     ctr = [pn pe pd]';
-%     axis([ctr(3)-z_size/2, ctr(3) + z_size/2, ctr(1) - x_size/2, ctr(1) + x_size/2, ctr(2) - y_size/2, ctr(2) + y_size/2]);
     
-        
-    % at every other time step, redraw base and rod
+        aircraft_handle = drawQuadrotorBody(Aircraft, Target, ...
+                                   aircraft_state, target_state, ...
+                                   [],'normal');
     else 
-        
-        drawQuadrotorBody(Vertices,Faces,facecolors,...
-                           pn,pe,pd,phi,theta,psi,...
-                           x_target, y_target, ...
+        drawQuadrotorBody(Aircraft, Target, ...
+                           aircraft_state, target_state, ...
                            aircraft_handle);
-%        ax = gca;
-%        ctr = [pn pe pd]';
-%        ax.XLim = [ctr(3)-z_size/2, ctr(3) + z_size/2];
-%        ax.YLim=[ctr(1)-x_size/2, ctr(1) + x_size/2];
-%        ax.ZLim=[ctr(2)-y_size/2, ctr(2) + y_size/2];
-%     ax.CameraTarget = [pn pe pd];
-%     ax.CameraViewAngle = 15;
-%     
     end
-
 end
 
 %=======================================================================
@@ -138,20 +86,18 @@ end
 % return handle if 3rd argument is empty, otherwise use 3rd arg as handle
 %=======================================================================
 %
-function handle = drawQuadrotorBody(V, F, patchcolors, ...
-                                     pn, pe, pd, phi, theta, psi, ...
-                                     xt, yt, ...
+function handle = drawQuadrotorBody(Aircraft, Target, ...
+                                     aircraft_state, target_state, ...
                                      handle, mode)
+  a = aircraft_state; t = target_state;
+  Aircraft.V = rotate(Aircraft.V', a.phi, a.theta, a.psi)';  % rotate Aircraft
 
-  V = rotate(V', phi, theta, psi)';  % rotate Aircraft
-
-  V = translate(V', pn, pe, pd)';  % translate Aircraft
+  Aircraft.V = translate(Aircraft.V', a.x, a.y, a.z)';  % translate Aircraft
   % transform vertices from NED to XYZ (for matlab rendering)
-  [Vt, Ft, Colort] = defineTarget();
-  Vt = translate(Vt', xt, yt, 0)';
-  V = [V; Vt];
-  F = [F; Ft];
-  patchcolors = [patchcolors; Colort];
+  Target.V = translate(Target.V', t.x, t.y, t.z)';
+  V = [Aircraft.V; Target.V];
+  F = [Aircraft.F; Target.F];
+  patchcolors = [Aircraft.C; Target.C];
   R = [...
       0, 1, 0; ...
       0, 0, 1; ...
@@ -172,29 +118,50 @@ end
 
 function XYZ=rotate(XYZ,phi,theta,psi)
   % define rotation matrix
+  c_phi = cos(phi);
+  s_phi = sin(phi);
   R_roll = [...
           1, 0, 0;                  ...
-          0, cos(phi), sin(phi);    ...
-          0, -sin(phi), cos(phi)];
-      
+          0, c_phi, s_phi;    ...
+          0, -s_phi, c_phi];
+  
+  c_theta = cos(theta);
+  s_theta = sin(theta);
   R_pitch = [ ...
-          cos(theta), sin(theta),  0; ...
-          -sin(theta), cos(theta), 0; ...
+          c_theta, s_theta,  0; ...
+          -s_theta, c_theta, 0; ...
           0,           0,          1  ...
           ];
+  c_psi = cos(psi);
+  s_psi = sin(psi);
   R_yaw = [ ...
-            cos(psi), 0, -sin(psi); ...
+            c_psi, 0, -s_psi; ...
             0,        1, 0;         ...
-            sin(psi), 0, cos(psi)   ...
+            s_psi, 0, c_psi   ...
            ];
+%   R_roll = [...
+%           1, 0, 0;                  ...
+%           0, cos(phi), sin(phi);    ...
+%           0, -sin(phi), cos(phi)];
+%       
+%   R_pitch = [ ...
+%           cos(theta), sin(theta),  0; ...
+%           -sin(theta), cos(theta), 0; ...
+%           0,           0,          1  ...
+%           ];
+%   R_yaw = [ ...
+%             cos(psi), 0, -sin(psi); ...
+%             0,        1, 0;         ...
+%             sin(psi), 0, cos(psi)   ...
+%            ];
   R = R_roll*R_pitch*R_yaw;
   % rotate vertices
   XYZ = R'*XYZ;
 end
 
 % translate vertices by pn, pe, pd
-function XYZ = translate(XYZ,pn,pe,pd)
-  XYZ = XYZ + repmat( [pn;pe;pd], 1, size(XYZ,2) );
+function XYZ = translate(XYZ,x,y,z)
+  XYZ = XYZ + repmat( [x;y;z], 1, size(XYZ,2) );
 end
 
 % define aircraft vertices and faces
