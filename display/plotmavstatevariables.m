@@ -89,15 +89,8 @@ function plotMAVStateVariables(uu)
     % angular = [9; 12]';
     %   map = [1 2 3; 4 5 6]';
     map = [linear; angular; [13 0 0; 14 15 16]];
-%     map = [1 2];
     %   map = [map(:, 1), map(:, 2), [15 18; 16 19; 17 20; 1 1]];
-    
-    
-    % init params
-%     persistent handles;
-%     [variables, handles] = init_variables(variables, handles);
-%     handles = draw(variables, map, handles, t, need_draw);
-%     drawnow;
+
     handle_data(variables, map, t, need_draw);
 
 function handle_data(variables, map, t, need_draw)
@@ -139,15 +132,6 @@ function [storage, y_range] = store_points(storage, y_range, variables, t, itera
             max(y_range(paramIndex, 2), max(param.values))
         ];
     end
-        
-  
-function [list, handles] = init_variables(list, handles)
-  if isempty(handles)
-    handles = repmat(struct('v', []), size(list,1), 1);
-  end
-  for i = 1:length(list)
-     list{i}.handle = handles(i).v; 
-  end
 
 function handles = draw(variables, map, handles, storage, y_range, iteration)
     if iteration == 1
@@ -189,87 +173,6 @@ function handles = draw(variables, map, handles, storage, y_range, iteration)
         end
     end
 
-% function handles = draw1(variables, map, handles, t, need_draw)
-%     var_numbers = size(variables, 1);
-%     
-%     persistent iteration
-%     if isempty(iteration)
-%       iteration = 0;
-%     end
-%     iteration = iteration + 1;
-%     
-%     % save points
-%     persistent storage
-%     if isempty(storage)
-%         storage = cell(var_numbers + 1, 1);
-%     end
-%     if size(storage{1}, 2) < iteration
-%         for i = 1:var_numbers
-%             storage{i} = increaseMat(storage{i}, 2, NaN(length(variables{i}.values)));
-%         end
-%         storage{end} = increaseMat(storage{end}, 2, NaN(1,1));
-%     end
-%     storage{end}(iteration) = t;
-%     
-%     persistent minmax
-%     if isempty(minmax)
-%         minmax = Inf(var_numbers, 2) .* [1 -1];
-%     end
-% 
-%     if t == 0
-%         figure(2), clf
-%         [center, s_size] = Utils.getCenter();
-%         set(gcf, 'Position', [0 0 center(3) center(4)*2-100]);
-%     end
-% 
-%     plotIndex = 0;
-%     for i=1:size(map, 1)
-%         for j=1:size(map, 2)
-%             plotIndex = plotIndex + 1;
-%             paramIndex = map(i, j);
-%             if paramIndex == 0
-%                 % dont need to handle at all
-%                 if t == 0
-%                     subplot(size(map, 1), size(map, 2), plotIndex);
-%                     hold on;
-%                     plot([0],[0]);
-%                 end
-%                 continue
-%             end
-%             param = variables{paramIndex};
-%             % save points --------------------
-%             storage{paramIndex}(:, iteration) = param.values';
-%             minmax(paramIndex, :) = [
-%                 min(minmax(paramIndex, 1), min(param.values))
-%                 max(minmax(paramIndex, 2), max(param.values))
-%             ];
-%             if need_draw == 0
-%                continue; 
-%             end
-%             % draw ----------------------
-%             if isempty(handles(paramIndex).v)
-%                 subplot(size(map, 1), size(map, 2), plotIndex);
-%                 hold on;
-%                 handle = graph([], param.name, storage{paramIndex}(:, 1:iteration), storage{end}(1:iteration), minmax(paramIndex, :));
-%                 handles(paramIndex).v = handle;
-%                 if i == 1 && j == 2
-%                   Lgnd = legend('show');
-%                 Lgnd.Position(1) = 0.9;
-%                 legend('basic', 'desired', 'local');    
-%                 end
-%             else
-%                 graph(param.handle, param.name, storage{paramIndex}(:, 1:iteration), storage{end}(1:iteration), minmax(paramIndex, :));
-%             end
-%         end
-%     end
-  
-function packs = create_graph_params(template)
-    packs = cell(size(template, 1), 1);
-    for param_idx = 1:size(template, 1)
-        param = template{param_idx};
-        packs{param_idx} = struct('handle', [], 'name', param{1}, 'values', [param{2:end}]);
-    end
-
 function handle = graph(handle, name, storage, time, y_range)
     t = time(end);
     values = storage(:, end);
@@ -289,28 +192,31 @@ function handle = graph(handle, name, storage, time, y_range)
         ylabel(name)
     else
         axes = get(handle(1), 'Parent');
-%         y_range = axes.UserData;
-%         y_range = [min(y_range(1), min(values)), max(y_range(2), max(values))];
         y_lim = get_y_limits(y_range, 0.05);
         set(axes, 'YLim', y_lim, 'XLim', [0, max(t, 1)], 'UserData', y_range);
         
         t_data = time;
-%         t_data = get(handle(1),'Xdata');
-%         if length(t_data) < iteration
-%             t_data = increase(t_data, 2);
-%         end
-%         t_data(iteration) = t;
         for i = 1:length(values)
             y_data = storage(i, :);
-%             y_data = get(handle(i),'Ydata'); 
-%             if length(y_data) < iteration
-%                 y_data = increase(y_data, 2);
-%             end
-%             y_data(iteration) = values(i);
             set(handle(i), 'Xdata', t_data, 'Ydata', y_data);
         end
     end
 % end graph
+
+function [list, handles] = init_variables(list, handles)
+  if isempty(handles)
+    handles = repmat(struct('v', []), size(list,1), 1);
+  end
+  for i = 1:length(list)
+     list{i}.handle = handles(i).v; 
+  end
+
+function packs = create_graph_params(template)
+    packs = cell(size(template, 1), 1);
+    for param_idx = 1:size(template, 1)
+        param = template{param_idx};
+        packs{param_idx} = struct('handle', [], 'name', param{1}, 'values', [param{2:end}]);
+    end
 
 function lims = get_y_limits(data_range, offset_factor)
     if data_range(1) == data_range(2) && data_range(1) == 0
@@ -319,10 +225,6 @@ function lims = get_y_limits(data_range, offset_factor)
     end
     % y_min - 5%; y_max + 5%
     lims = data_range + offset_factor*[-abs(data_range(1)), abs(data_range(2))];
-
-
-function vec = increase(src, factor)
-    vec = [src, inf*ones(1, max(length(src)*(factor-1), 3000))];
 
 function mat = increaseMat(src, factor, default)
     if size(src) == [0, 0]
