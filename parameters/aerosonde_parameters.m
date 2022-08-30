@@ -15,7 +15,7 @@ MAV.v0     = 0;     % initial velocity along body y-axis
 MAV.x0    = 0;     % initial North position
 MAV.y0    = 0;     % для полета за целью
 % MAV.y0    = 2;      % для стабилизации на точке
-MAV.z0    = 0;     % initial Zg position
+MAV.z0    = 6;     % initial Zg position
 MAV.u0     = 0;     % initial velocity along body x-axis
 MAV.v0     = 0;
 
@@ -83,6 +83,9 @@ MAV.Motor;
 MAV.Control.u_xz_max = 2 * (MAV.Motor.Nmax*0.9)^2;
 
 % Environment
+% Среднегодовая скорость ветра
+MAV.Env.Wind_speed_h = 6;   % измеренная на высоте
+MAV.Env.Wind_speed_statistics = 20;
 MAV.Env.Wind_speed = [
     0
     0

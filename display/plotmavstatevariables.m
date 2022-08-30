@@ -1,6 +1,6 @@
 function plotMAVStateVariables(uu)
     FPS = 5;
-    PPS = 50;   % points per second
+    PPS = 30;   % points per second
     t = uu(end);
     persistent lastWorkedTime
     if isempty(lastWorkedTime)
@@ -14,13 +14,14 @@ function plotMAVStateVariables(uu)
     if t - lastWorkedTime(2) >= 1/FPS
         need_draw = 1;
         lastWorkedTime(2) = t;
+%         profile on
     end
 
 
     idx_map = Utils.gen_idx([...
         12, ... % x
         4, ...  % u
-        2, ...  % internal - theta, theta_c
+        6, ...  % internal commands - euler angles and dots
         9, ...  % desired
         15, ... % corrected x
         9 ...   % target state
@@ -37,23 +38,25 @@ function plotMAVStateVariables(uu)
     
     [ u1, u_x, u_y, u_z ] = uu_cell{idx_map{2}};
     
-    [theta_c, theta_c_dot] = uu_cell{idx_map{3}};
+    [phi_c, phi_c_dot, psi_c, psi_c_dot, theta_c, theta_c_dot] = uu_cell{idx_map{3}};
     
     corrected_state_idx = idx_map{5};
-    [v_x_g, v_y_g] = uu_cell{corrected_state_idx(4:5)};
+    [v_x_g, v_y_g, v_z_g] = uu_cell{corrected_state_idx(4:6)};
     
     % desired values
     target_idx = idx_map{4};
     x_target = uu_cell{target_idx(1)};
     y_target = uu_cell{target_idx(2)};
+    z_target = uu_cell{target_idx(3)};
     v_x_target = uu_cell{target_idx(4)};
     v_y_target = uu_cell{target_idx(5)};
+    v_z_target = uu_cell{target_idx(6)};
 
     angles_deg = rad2deg([phi theta psi w_x w_y w_z theta_c theta_c_dot]);
     angles_deg_cell = num2cell(angles_deg);
     [...
         phi, theta, psi, ...
-        w_x w_y w_z, ...
+        w_x, w_y, w_z, ...
         theta_c, theta_c_dot, ...
     ] = angles_deg_cell{:};
 
@@ -62,15 +65,15 @@ function plotMAVStateVariables(uu)
     variables = create_graph_params({
         {'x', x, x_target};  % 1
         {'y', y, y_target};  % 2
-        {'z', z};    % 3
+        {'z', z, z_target, Inf};    % 3
         {'v_x', v_x_g, v_x_target, v_x};    % 4
         {'v_y', v_y_g, v_y_target, v_y};    % 5
-        {'v_z', v_z};    % 6
-        {'\phi', phi};    % 7
-        {'\psi', psi};    % 8
+        {'v_z', v_z_g, v_z_target, v_z};    % 6
+        {'\phi', phi, phi_c};    % 7
+        {'\psi', psi, psi_c};    % 8
         {'\vartheta', theta, theta_c};    % 9
-        {'\omega_x', w_x};    % 10
-        {'\omega_y', w_y};    % 11
+        {'\omega_x', w_x, phi_c_dot};    % 10
+        {'\omega_y', w_y, psi_c_dot};    % 11
         {'\omega_z', w_z, theta_c_dot};    % 12
         {'u_1', u1};          % 13
         {'u_x', u_x};          % 14
@@ -102,8 +105,12 @@ function handle_data(variables, map, t, need_draw)
     
     [variables, handles] = init_variables(variables, handles);
     [storage, y_range] = store_points(storage, y_range, variables, t, iteration);
+    
     if need_draw == 1
+%         fA = parfeval(backgroundPool, @draw, variables, map, handles, storage, y_range, iteration);
         handles = draw(variables, map, handles, storage, y_range, iteration);
+%         profile viewer
+%         a = 1
     end
     
     
@@ -164,7 +171,7 @@ function handles = draw(variables, map, handles, storage, y_range, iteration)
                 if i == 1 && j == 2
                   Lgnd = legend('show');
                 Lgnd.Position(1) = 0.9;
-                legend('basic', 'desired', 'local');    
+                legend('basic', 'desired', 'bound', 'error');    
                 end
             else
                 graph(param.handle, param.name, storage{paramIndex}(:, 1:iteration), ...
@@ -176,7 +183,7 @@ function handles = draw(variables, map, handles, storage, y_range, iteration)
 function handle = graph(handle, name, storage, time, y_range)
     t = time(end);
     values = storage(:, end);
-    colors = ['b'; 'r'; 'g'];
+    colors = ['b'; 'r'; 'g'; 'm'];
     if isempty(handle)
         for i = 1:length(values)
            handle(i) = plot(time, storage(i, :), colors(i));
@@ -200,6 +207,7 @@ function handle = graph(handle, name, storage, time, y_range)
             y_data = storage(i, :);
             set(handle(i), 'Xdata', t_data, 'Ydata', y_data);
         end
+        handle = "fuck";
     end
 % end graph
 

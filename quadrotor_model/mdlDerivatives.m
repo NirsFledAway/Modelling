@@ -1,4 +1,4 @@
-function sys=mdlDerivatives(t,x,uu, MAV)
+function sys=mdlDerivatives(t, x, uu, MAV)
     
 %   Earth coordinates
     pn    = x(1);
@@ -18,10 +18,12 @@ function sys=mdlDerivatives(t,x,uu, MAV)
     r     = x(12);  % тангаж
 
     N = uu(1:4);
+    
+    wind = uu(5:7);
     R_g_b = Utils.getRotationMatrix([phi theta psi]);   % матрица поворота (g->b) {из Земной нормальной в связанную СК}
 
     cache.R_g_b = R_g_b;
-    [Fb, Mb] = forces_moments(t,x,uu, MAV, cache);
+    [Fb, Mb] = forces_moments(t,x,uu, wind, MAV, cache);
     
     % поступательная кинематика
     p_dot = R_g_b' * [u v w]';
@@ -55,7 +57,7 @@ function sys=mdlDerivatives(t,x,uu, MAV)
 end
 
 % @return: Вектора силы и момента в связанной СК
-function [Fb, Mb] = forces_moments(t,x,uu, MAV, cache)
+function [Fb, Mb] = forces_moments(t,x,uu, wind_speed, MAV, cache)
     N = uu(1:4);    % скорость вращения двигов
     Omega = 2*pi*N/60;
     R_g_b = cache.R_g_b;
@@ -65,8 +67,10 @@ function [Fb, Mb] = forces_moments(t,x,uu, MAV, cache)
     f = Gaurang(N, MAV.Prop, MAV.rho, x(5));
     f_thrust = [0 1 0]' * sum(f);
 %     P_thrust = [0; 1; 0] * sum(f_thrust);   % тяго
-    wind = R_g_b * MAV.Env.Wind_speed;
-    f_aerial_drag = AerialDrag(x(4:6), wind, MAV.rho, MAV.Body.S, MAV.Body.C_aerial_drag_1);
+%     wind = R_g_b * MAV.Env.Wind_speed;
+    wind = wind_speed;
+    f_aerial_drag = AerialDrag(x(4:6), wind, MAV.rho);
+% f_aerial_drag = AerialDrag(x(4:6), wind, MAV.rho, MAV.Body.S, MAV.Body.C_aerial_drag_1);
     Fb = f_gravity + f_aerial_drag + f_thrust;    % результирующая сил в связанной СК
 
     % Moments
@@ -138,8 +142,39 @@ function M = PropellerAeroMomentumPlain(N, prop, rho)
 end
 
 % Сила аэродинамического сопротивления
-function F = AerialDrag(v, w, rho, S, C)
-    V = w + v;  % w - wind, v - vehicle speed;
-    % S - характерная площадь
-    F = - C * rho * V.^2/2 .* S;
+% function F = AerialDrag(v, w, rho, S, C)
+%     Va = v - w;  % w - wind, v - ground speed;
+%     % S - характерная площадь
+%     F = - C * rho * Va.^2/2 .* S';
+%     
+% end
+function Fb = AerialDrag(Vb, Wb, rho)
+    Va_vec = Vb - Wb;  % w - wind, v - ground speed; body frame
+    Va = norm(Va_vec);
+    alpha = atan2(Va_vec(2), Va_vec(1));    % attack angle
+    % alpha angle
+    if alpha >= 0 && alpha <= 20
+        F_0 = 0.6969 + 0.0022*(alpha+2.3409).^2;
+    elseif alpha >= -45 && alpha < 0
+        F_0 = 0.6969 + 0.0022*(-alpha+2.3409).^2;
+    elseif alpha > 20 && alpha <= 90
+        F_0 = -0.000435*alpha^2 + 0.098161*alpha - 0.007685;
+%         C_d = 5.5300 - 4.3500e-04*(alpha - 112.8287)^2;
+    else
+        F_0 = 5.5300 - 4.3500e-04*(-alpha - 112.8287)^2;
+    end
+    C_D_alpha = F_0 / (0.5*rho*Va^2);
+    F_D = 0.5*rho*C_D_alpha*Va^2;
+    
+    Fa = [
+        (-1)*F_D;
+        0;
+        0;
+    ];  % в скоростной СК
+    c_a = cos(alpha); s_a = sin(alpha);
+    R_b_a = [ c_a s_a 0; -s_a c_a 0; 0 0 1];    % из связанной в скоростную
+    Fb = R_b_a' * Fa;
+    Fb = Fb*2;
+    
 end
+    

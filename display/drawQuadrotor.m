@@ -1,6 +1,6 @@
 function drawQuadrotor(uu)
     t        = uu(end);
-    FPS = 20;
+    FPS = 30;
     persistent lastDrawTime
     if isempty(lastDrawTime)
         lastDrawTime = -inf;
@@ -13,7 +13,7 @@ function drawQuadrotor(uu)
     idx_map = Utils.gen_idx([...
         12, ... % x
         4, ...  % u
-        2, ...  % theta, theta_c
+        6, ...  % theta, theta_c
         9, ...  % desired
         15, ... % corrected x
         9 ...   % target state
@@ -112,7 +112,8 @@ function handle = drawQuadrotorBody(Aircraft, Target, ...
        grid on;
   else
     set(handle,'Vertices',V,'Faces',F);
-    drawnow;
+%     drawnow;
+    drawnow limitrate nocallbacks
   end
 end
 

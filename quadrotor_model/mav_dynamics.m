@@ -69,7 +69,7 @@ sizes = simsizes;
 sizes.NumContStates  = 12;
 sizes.NumDiscStates  = 0;
 sizes.NumOutputs     = 12;
-sizes.NumInputs      = 4;
+sizes.NumInputs      = 4+3;
 sizes.DirFeedthrough = 0;
 sizes.NumSampleTimes = 1;   % at least one sample time is needed
 
