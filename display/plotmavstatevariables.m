@@ -1,234 +1,253 @@
 function plotMAVStateVariables(uu)
-    FPS = 5;
-    PPS = 50;   % points per second
-    t = uu(end);
-    persistent lastWorkedTime
-    if isempty(lastWorkedTime)
-        lastWorkedTime = [-inf; -inf];
+%
+% modified 12/11/2009 - RB
+
+    % process inputs to function
+    % quadrotor model
+    pn          = uu(1);             % North position (meters)
+    pe          = uu(2);             % East position (meters)
+    h           = uu(3);             % altitude (meters)
+
+    u           = uu(4);             % body velocity along x-axis (meters/s)
+    v           = uu(5);             % body velocity along y-axis (meters/s)
+    w           = uu(6);             % body velocity along z-axis (meters/s)
+
+    phi         = 180/pi*uu(7);      % roll angle (degrees)   
+    theta       = 180/pi*uu(8);      % pitch angle (degrees)
+    psi         = 180/pi*uu(9);      % yaw angle (degrees)
+
+    p           = 180/pi*uu(10);     % body angular rate along x-axis (degrees/s)
+    q           = 180/pi*uu(11);     % body angular rate along y-axis (degrees/s)
+    r           = 180/pi*uu(12);     % body angular rate along z-axis (degrees/s)
+
+    % external inputs
+%     Va          = uu(13);            % airspeed (m/s)
+%     alpha       = 180/pi*uu(14);     % angle of attack (degrees)
+%     beta        = 180/pi*uu(15);     % side slip angle (degrees)
+%     wn          = uu(16);            % wind in the North direction
+%     we          = uu(17);            % wind in the East direction
+%     wd          = uu(18);            % wind in the Down direction
+%     pn_c        = uu(19);            % commanded North position (meters)
+%     pe_c        = uu(20);            % commanded East position (meters)
+%     h_c         = uu(21);            % commanded altitude (meters)
+%     Va_c        = uu(22);            % commanded airspeed (meters/s)
+%     alpha_c     = 180/pi*uu(23);     % commanded angle of attack (degrees)
+%     beta_c      = 180/pi*uu(24);     % commanded side slip angle (degrees)
+%     phi_c       = 180/pi*uu(25);     % commanded roll angle (degrees)   
+%     theta_c     = 180/pi*uu(26);     % commanded pitch angle (degrees)
+%     chi_c       = 180/pi*uu(27);     % commanded course (degrees)
+%     p_c         = 180/pi*uu(28);     % commanded body angular rate along x-axis (degrees/s)
+%     q_c         = 180/pi*uu(29);     % commanded body angular rate along y-axis (degrees/s)
+%     r_c         = 180/pi*uu(30);     % commanded body angular rate along z-axis (degrees/s)
+%     pn_hat      = uu(31);            % estimated North position (meters)
+%     pe_hat      = uu(32);            % estimated East position (meters)
+%     h_hat       = uu(33);            % estimated altitude (meters)
+%     Va_hat      = uu(34);            % estimated airspeed (meters/s)
+%     alpha_hat   = 180/pi*uu(35);     % estimated angle of attack (degrees)
+%     beta_hat    = 180/pi*uu(36);     % estimated side slip angle (degrees)
+%     phi_hat     = 180/pi*uu(37);     % estimated roll angle (degrees)   
+%     theta_hat   = 180/pi*uu(38);     % estimated pitch angle (degrees)
+%     chi_hat     = 180/pi*uu(39);     % estimated course (degrees)
+%     p_hat       = 180/pi*uu(40);     % estimated body angular rate along x-axis (degrees/s)
+%     q_hat       = 180/pi*uu(41);     % estimated body angular rate along y-axis (degrees/s)
+%     r_hat       = 180/pi*uu(42);     % estimated body angular rate along z-axis (degrees/s)
+% %    Vg_hat      = uu(43);            % estimated groundspeed
+% %    wn_hat      = uu(44);            % estimated North wind
+% %    we_hat      = uu(45);            % estimated East wind
+% %    psi_hat     = 180/pi*uu(46);     % estimated heading
+% %    bx_hat      = uu(47);            % estimated x-gyro bias
+% %    by_hat      = uu(48);            % estimated y-gyro bias
+% %    bz_hat      = uu(49);            % estimated z-gyro bias
+%     delta_e     = 180/pi*uu(50);     % elevator angle (degrees)
+%     delta_a     = 180/pi*uu(51);     % aileron angle (degrees)
+%     delta_r     = 180/pi*uu(52);     % rudder angle (degrees)
+%     delta_t     = uu(53);            % throttle setting (unitless)
+%       u1 = uu(13);
+%       u2 = uu(14);
+%       theta_c = uu(15);
+    t           = uu(13);            % simulation time
+
+    FPS = 30;
+    persistent lastDrawTime
+    if isempty(lastDrawTime)
+        lastDrawTime = -inf;
     end
-    if t - lastWorkedTime(1) < 1/PPS
+    if t - lastDrawTime < 1/FPS
         return
     end
-    lastWorkedTime(1) = t;
-    need_draw = 0;
-    if t - lastWorkedTime(2) >= 1/FPS
-        need_draw = 1;
-        lastWorkedTime(2) = t;
-    end
-
-
-    idx_map = Utils.gen_idx([...
-        12, ... % x
-        4, ...  % u
-        2, ...  % internal - theta, theta_c
-        9, ...  % desired
-        15, ... % corrected x
-        9 ...   % target state
-    ]);
-    
-    uu_cell = num2cell(uu);
-    
-    [
-        x, y, z, ...
-        v_x, v_y, v_z, ...
-        phi, theta, psi, ...
-        w_x, w_y, w_z, ...
-    ] = uu_cell{idx_map{1}};
-    
-    [ u1, u_x, u_y, u_z ] = uu_cell{idx_map{2}};
-    
-    [theta_c, theta_c_dot] = uu_cell{idx_map{3}};
-    
-    corrected_state_idx = idx_map{5};
-    [v_x_g, v_y_g] = uu_cell{corrected_state_idx(4:5)};
-    
-    % desired values
-    target_idx = idx_map{4};
-    x_target = uu_cell{target_idx(1)};
-    y_target = uu_cell{target_idx(2)};
-    v_x_target = uu_cell{target_idx(4)};
-    v_y_target = uu_cell{target_idx(5)};
-
-    angles_deg = rad2deg([phi theta psi w_x w_y w_z theta_c theta_c_dot]);
-    angles_deg_cell = num2cell(angles_deg);
-    [...
-        phi, theta, psi, ...
-        w_x w_y w_z, ...
-        theta_c, theta_c_dot, ...
-    ] = angles_deg_cell{:};
 
     
-    g = 9.81;
-    variables = create_graph_params({
-        {'x', x, x_target};  % 1
-        {'y', y, y_target};  % 2
-        {'z', z};    % 3
-        {'v_x', v_x_g, v_x_target, v_x};    % 4
-        {'v_y', v_y_g, v_y_target, v_y};    % 5
-        {'v_z', v_z};    % 6
-        {'\phi', phi};    % 7
-        {'\psi', psi};    % 8
-        {'\vartheta', theta, theta_c};    % 9
-        {'\omega_x', w_x};    % 10
-        {'\omega_y', w_y};    % 11
-        {'\omega_z', w_z, theta_c_dot};    % 12
-        {'u_1', u1};          % 13
-        {'u_x', u_x};          % 14
-        {'u_y', u_y};          % 15
-        {'u_z', u_z};          % 16
-    %     {'v_d_dot', -g*sin(theta), w_z*v_y - w_y*v_z -g*sin(theta)};          % 15
-    %     {v_z_dot coriolis', w_x*v_z - w_z*v_x, w_y*v_x - w_x*v_y};          % 16
-    %     {'v_d_dot', -g*sin(theta), w_z*v_y - w_y*v_z -g*sin(theta)};          % 17
-    %     {'w_x, phi_dot', w_x, w_x - cos(phi)*tan(theta)*w_y + sin(phi)*tan(theta)*w_z};          % 18
-    %     {'w_x, psi_dot', w_y, cos(phi)*(1/cos(theta))*w_y - sin(phi)*(1/cos(theta))*w_z};          % 19
-    %     {'w_z, theta_dot', w_z, sin(phi)*w_y + cos(phi)*w_z};          % 21
-    });
-    linear = [1 2 3; 4 5 6];
-    angular = [7 8 9; 10 11 12];
-    % linear = [1 2; 4 5]';
-    % angular = [9; 12]';
-    %   map = [1 2 3; 4 5 6]';
-    map = [linear; angular; [13 0 0; 14 15 16]];
-    %   map = [map(:, 1), map(:, 2), [15 18; 16 19; 17 20; 1 1]];
+    % compute course angle
+    % chi = 180/pi*atan2(Va*sin(psi)+we, Va*cos(psi)+wn);
 
-    handle_data(variables, map, t, need_draw);
+    % TODO: Vz не отображается
+  % init schema
+  variables_list = [
+    create_graph_params(pn, 'x', []);  % 1
+    create_graph_params(pe, 'y', []);  % 2
+    create_graph_params(h, 'z', []);    % 3
+    create_graph_params(u, 'v_x', []);    % 4
+    create_graph_params(v, 'v_y', []);    % 5
+    create_graph_params(w, 'v_z', []);    % 6
+    create_graph_params(phi, '\phi', []);    % 7
+    create_graph_params(psi, '\psi', []);    % 8
+    create_graph_params(theta, '\vartheta', []);    % 9
+    create_graph_params(p, '\omega_x', []);    % 10
+    create_graph_params(q, '\omega_y', []);    % 11
+    create_graph_params(r, '\omega_z', []);    % 12
+  ];
+  linear = [1 2 3; 4 5 6]';
+  angular = [7 8 9; 10 11 12]';
+  % map = [1 2 3; 4 5 6]';
+  map = [linear; angular];
 
-function handle_data(variables, map, t, need_draw)
-    persistent handles iteration storage y_range;
-    if isempty(iteration)
-      iteration = 0;
-    end
-    iteration = iteration + 1;
-    
-    [variables, handles] = init_variables(variables, handles);
-    [storage, y_range] = store_points(storage, y_range, variables, t, iteration);
-    if need_draw == 1
-        handles = draw(variables, map, handles, storage, y_range, iteration);
-    end
-    
-    
-function [storage, y_range] = store_points(storage, y_range, variables, t, iteration)
-    var_n = size(variables, 1);
-    if isempty(storage)
-        storage = cell(var_n + 1, 1);
-    end
-    if size(storage{1}, 2) < iteration
-        for i = 1:var_n
-            storage{i} = increaseMat(storage{i}, 2, NaN(length(variables{i}.values)));
-        end
-        storage{end} = increaseMat(storage{end}, 2, NaN(1,1));
-    end
-    storage{end}(iteration) = t;
-    
-    if isempty(y_range)
-        y_range = Inf(var_n, 2) .* [1 -1];
-    end
-    
-    for paramIndex = 1:var_n
-        param = variables{paramIndex};
-        storage{paramIndex}(:, iteration) = param.values';
-        y_range(paramIndex, :) = [
-            min(y_range(paramIndex, 1), min(param.values))
-            max(y_range(paramIndex, 2), max(param.values))
-        ];
-    end
+  % init params
+  persistent handles
+  persistent i
+  if isempty(i)
+      i = 0;
+  end
+  i = i + 1;
+  i
+  handles
+  [variables, handles] = init_variables(variables_list, map, handles, t);
 
-function handles = draw(variables, map, handles, storage, y_range, iteration)
-    if iteration == 1
-        figure(2), clf
-        [center, s_size] = Utils.getCenter();
-        set(gcf, 'Position', [0 0 center(3) center(4)*2-100]);
-    end
-
-    plotIndex = 0;
-    for i=1:size(map, 1)
-        for j=1:size(map, 2)
-            plotIndex = plotIndex + 1;
-            paramIndex = map(i, j);
-            if paramIndex == 0
-                % dont need to handle at all
-                if iteration == 1
-                    subplot(size(map, 1), size(map, 2), plotIndex);
-                    hold on;
-                    plot([0],[0]);
-                end
-                continue
-            end
-            param = variables{paramIndex};
-            if isempty(handles(paramIndex).v)
-                subplot(size(map, 1), size(map, 2), plotIndex);
-                hold on;
-                handle = graph([], param.name, storage{paramIndex}(:, 1:iteration), ...
-                    storage{end}(1:iteration), y_range(paramIndex, :));
-                handles(paramIndex).v = handle;
-                if i == 1 && j == 2
-                  Lgnd = legend('show');
-                Lgnd.Position(1) = 0.9;
-                legend('basic', 'desired', 'local');    
-                end
-            else
-                graph(param.handle, param.name, storage{paramIndex}(:, 1:iteration), ...
-                    storage{end}(1:iteration), y_range(paramIndex, :));
-            end
-        end
-    end
-
-function handle = graph(handle, name, storage, time, y_range)
-    t = time(end);
-    values = storage(:, end);
-    colors = ['b'; 'r'; 'g'];
-    if isempty(handle)
-        for i = 1:length(values)
-           handle(i) = plot(time, storage(i, :), colors(i));
-        end
-        
-        set(handle(1), 'XLimInclude', 'off', 'YLimInclude', 'off');
-        axes = get(handle(1), 'Parent');
-        set(axes, 'XLimMode', 'manual', 'YLimMode', 'manual', ...
-            'UserData', y_range, ...
-            'XLim', [0 1], ...
-            'YLim', get_y_limits(y_range, 0.05));
-        set(get(gca, 'YLabel'), 'Rotation', 0.0);
-        ylabel(name)
-    else
-        axes = get(handle(1), 'Parent');
-        y_lim = get_y_limits(y_range, 0.05);
-        set(axes, 'YLim', y_lim, 'XLim', [0, max(t, 1)], 'UserData', y_range);
-        
-        t_data = time;
-        for i = 1:length(values)
-            y_data = storage(i, :);
-            set(handle(i), 'Xdata', t_data, 'Ydata', y_data);
-        end
-    end
-% end graph
-
-function [list, handles] = init_variables(list, handles)
+  handles = draw(variables, map, handles, t);
+  
+function [variables, handles] = init_variables(list, map, handles, t)
   if isempty(handles)
     handles = repmat(struct('v', []), size(list,1), 1);
   end
-  for i = 1:length(list)
-     list{i}.handle = handles(i).v; 
+  variables = repmat(create_graph_params(0, '', []), size(map, 1), size(map, 2));
+  for i=1:1:size(map, 1)
+    for j=1:1:size(map, 2)
+      param_idx = map(i,j);
+      if param_idx ~= 0
+        variables(i, j) = list(param_idx);
+        variables(i,j).handle = handles(param_idx).v;
+      end
+    end
   end
 
-function packs = create_graph_params(template)
-    packs = cell(size(template, 1), 1);
-    for param_idx = 1:size(template, 1)
-        param = template{param_idx};
-        packs{param_idx} = struct('handle', [], 'name', param{1}, 'values', [param{2:end}]);
-    end
+function handles = draw(variables, map, handles, t)
+  if t == 0
+    figure(2), clf
+  end
 
-function lims = get_y_limits(data_range, offset_factor)
-    if data_range(1) == data_range(2) && data_range(1) == 0
-       data_range(1) = -1e-20;
-       data_range(2) = 1e-20;
+  curr = 0;
+  for i=1:size(map, 1)
+    for j=1:size(map, 2)
+        curr = curr + 1;
+        param = variables(i,j);
+        if param.name == ""
+            continue
+        end
+        if t == 0
+          subplot(size(variables, 1), size(variables, 2), curr);
+          hold on;
+          handle = graph_y(t, param);
+          idx = map(i,j);
+          handles(idx).v = handle;
+        else
+          graph_y(t, param);
+        end
     end
-    % y_min - 5%; y_max + 5%
-    lims = data_range + offset_factor*[-abs(data_range(1)), abs(data_range(2))];
+  end
 
-function mat = increaseMat(src, factor, default)
-    if size(src) == [0, 0]
-       src = default; 
-    end
-    mat = [src, inf*ones(size(src, 1), max(size(src, 2)*(factor-1), 30))];
+function pack = create_graph_params(val, name, handle)
+  pack.val = val;
+  pack.val_estimated = 0;
+  pack.val_desired = 0;
+  pack.name = name;
+  pack.handle = handle;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% graph y with lable mylabel
+function handle = graph_y(t, params)
+  y = params.val;
+  lab = params.name;
+  handle = params.handle;
+  if isempty(handle) || isempty(handle.ColorMode),
+    handle    = plot(t,y,'b');
+    ylabel(lab)
+    set(get(gca,'YLabel'),'Rotation', 0);
+  else
+    set(handle,'Xdata',[get(handle,'Xdata'),t]);
+    set(handle,'Ydata',[get(handle,'Ydata'),y]);
+    %drawnow
+  end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% graph y and yd with lable mylabel
+function handle = graph_y_yd(t, params)
+  y = params.val;
+  yd = params.val_desired;
+  lab = params.name;
+  handle = params.handle;
+  if isempty(handle),
+    handle(1)    = plot(t,y,'b');
+    handle(2)    = plot(t,yd,'g--');
+    ylabel(lab)
+    set(get(gca, 'YLabel'),'Rotation',0.0);
+  else
+    set(handle(1),'Xdata',[get(handle(1),'Xdata'),t]);
+    set(handle(1),'Ydata',[get(handle(1),'Ydata'),y]);
+    set(handle(2),'Xdata',[get(handle(2),'Xdata'),t]);
+    set(handle(2),'Ydata',[get(handle(2),'Ydata'),yd]);
+    %drawnow
+  end
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% plot the variable y in blue, its estimated value yhat in green, and its 
+% desired value yd in red, lab is the label on the graph
+function handle = graph_y_yhat_yd(t, params)
+  y = params.val;
+  yhat = params.val_estimated;
+  yd = params.val_desired;
+  lab = params.name;
+  handle = params.handle;
+  t
+
+  % if isempty(handle) || length(handle) < 3,
+  if t == 0
+    handle(1)   = plot(t,y,'b');
+    handle(2)   = plot(t,yhat,'g--');
+    handle(3)   = plot(t,yd,'r-.');
+    ylabel(lab)
+    set(get(gca,'YLabel'),'Rotation',0.0);
+  else
+    disp('set')
+    handle
+    get(handle(1),'Xdata')
+    set(handle(1),'Xdata',[get(handle(1),'Xdata'),t]);
+    set(handle(1),'Ydata',[get(handle(1),'Ydata'),y]);
+    set(handle(2),'Xdata',[get(handle(2),'Xdata'),t]);
+    set(handle(2),'Ydata',[get(handle(2),'Ydata'),yhat]);
+    set(handle(3),'Xdata',[get(handle(3),'Xdata'),t]);
+    set(handle(3),'Ydata',[get(handle(3),'Ydata'),yd]);     
+    %drawnow
+  end
+
+%
+%=============================================================================
+% sat
+% saturates the input between high and low
+%=============================================================================
+%
+function out=sat(in, low, high)
+
+  if in < low,
+      out = low;
+  elseif in > high,
+      out = high;
+  else
+      out = in;
+  end
+
+% end sat  
+
 

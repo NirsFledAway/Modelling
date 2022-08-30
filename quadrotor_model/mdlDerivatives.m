@@ -1,5 +1,5 @@
 function sys=mdlDerivatives(t,x,uu, MAV)
-    
+
 %   Earth coordinates
     pn    = x(1);
     pe    = x(2);
@@ -14,14 +14,27 @@ function sys=mdlDerivatives(t,x,uu, MAV)
     psi    = x(9);
 %   angular speeds
     p     = x(10);  % крен
-    q     = x(11);  % рыскание
-    r     = x(12);  % тангаж
+    q     = x(11);  % тангаж
+    r     = x(12);  % рыскание
 
+    % N = uu(1:4);
+%   inputs
+%     Ncontrol = altitudeControl(x, MAV);
+%     uu(1:4) = [Ncontrol Ncontrol Ncontrol Ncontrol]';
     N = uu(1:4);
-    R_g_b = Utils.getRotationMatrix([phi theta psi]);   % матрица поворота (g->b) {из Земной нормальной в связанную СК}
 
-    cache.R_g_b = R_g_b;
-    [Fb, Mb] = forces_moments(t,x,uu, MAV, cache);
+%     p = x(1:3)
+%     V = x(4:6);
+%     euler = x(7:9);
+%     omega = x(10:12);
+%     f = uu(1:3)
+%     m = uu(4:6);
+
+    [Fb, Mb] = forces_moments(t,x,uu, MAV);
+    
+    R_g_b = Utils.getRotationMatrix([phi theta psi]);
+    
+%     R_g_b = MAV.R_g_b([phi theta psi]); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
     
     % поступательная кинематика
     p_dot = R_g_b' * [u v w]';
@@ -52,79 +65,77 @@ function sys=mdlDerivatives(t,x,uu, MAV)
             phi_dot theta_dot psi_dot   ...
             p_dot q_dot r_dot           ...
           ]';
+
+    MAV.Cache.V_dot = [u_dot v_dot w_dot]'; % линейные ускорения
 end
 
 % @return: Вектора силы и момента в связанной СК
-function [Fb, Mb] = forces_moments(t,x,uu, MAV, cache)
+function [Fb, Mb] = forces_moments(t,x,uu, MAV)
+    euler_angles = x(7:9);
     N = uu(1:4);    % скорость вращения двигов
     Omega = 2*pi*N/60;
-    R_g_b = cache.R_g_b;
-    
+%     m = uu(5:7);
+    %   angular speeds
+    w_x     = x(10);  % крен
+    w_y     = x(11);  % тангаж
+    w_z     = x(12);  % рыскание
+
+    R_g_b = Utils.getRotationMatrix(euler_angles);
+%     R_g_b = MAV.R_g_b1(euler_angles); % матрица поворота (g->b) {из Земной нормальной в связанную СК}
+
     % Forces
     f_gravity = R_g_b * [0; MAV.mass*(-MAV.gravity); 0];
+    f_resistance = [0; 0; 0];
     f = Gaurang(N, MAV.Prop, MAV.rho, x(5));
     f_thrust = [0 1 0]' * sum(f);
 %     P_thrust = [0; 1; 0] * sum(f_thrust);   % тяго
-    wind = R_g_b * MAV.Env.Wind_speed;
-    f_aerial_drag = AerialDrag(x(4:6), wind, MAV.rho, MAV.Body.S, MAV.Body.C_aerial_drag_1);
-    Fb = f_gravity + f_aerial_drag + f_thrust;    % результирующая сил в связанной СК
+    Fb = f_gravity + f_resistance + f_thrust;    % результирующая сил в связанной СК
 
     % Moments
-    
 %     M_gyro = [mx my mz]';  % от винтов, вращение по рЫсканию
 %     M_gyro = m;
-    % отключено временно
-%     M_y_aerial_vec = PropellerAeroMomentumPlain(N, MAV.Prop, MAV.rho); % за счет аэродинамического сопротивления
-%     M_y_aerial = (-1) * sum(MAV.Prop.K_direction .*  M_y_aerial_vec);
+    M_y_aerial_vec = PropellerAeroMomentumPlain(N, MAV.Prop, MAV.rho); % за счет аэродинамического сопротивления
+    M_y_aerial = (-1) * sum(MAV.Prop.K_direction .*  M_y_aerial_vec);
 
-    M_y_aerial = PropellerAeroMomentunParabole(N, MAV.Prop); % экспериментально подобранная зависимость, по факту включает в себя момент инерции
+    M_y_aerial = 0;
     
-%     M_y_inertia = (MAV.Prop.J_y + MAV.Motor.J_rotor) .* sum(MAV.Prop.K_direction .* Omega.^2)
-    M_y_inertia = 0;
-%     M_y_aerial = 0;
+    M_y_inertia = (MAV.Prop.J_y + MAV.Motor.J_rotor) .* sum(MAV.Prop.K_direction .* Omega.^2);
 
     M_motors = [0 1 0]' * (M_y_aerial + M_y_inertia);
+%     M_motors = [0 0 0]';
+
+%     omega_motor_sum = sum([1 -1 -1 1]' .* Omega);
 
     M_gyro = [0 0 0]';
+%     M_gyro = (MAV.Prop.J_y + MAV.Motor.J_rotor) * w_z * omega_motor_sum;
 
     M_traction = [
         ( f(1) + f(4) - (f(2) + f(3)) ) * MAV.radius_z*1e-3;
         0;
         ( f(1) + f(2) - (f(3) + f(4)) ) * MAV.radius_x*1e-3;
     ];
-
-    
-
     Mb = M_gyro + M_traction + M_motors;
 end
 
 % Вычисление силы тяги по методу Gaurang
 function T = Gaurang(N, prop, rho, Va)
-    persistent K_f
-    if isempty(K_f)
-        utils;
-        d = prop.d;
-        p = prop.p;
-        ed = prop.ed;
-        k = prop.Nb * prop.c_d / 2;
-        theta = atan(p/(pi*d));
-        %     lambda_c = Va./(Omega*d/2);
-        lambda_c = 0;
-
-        C_T = 4/3*k*theta*(1 - (1 - ed)^3) - ...
-              k*( sqrt((lambda_c + k).^2+k) - sqrt(k) ) * (1-(1-ed)^2);
-
-        K_f = 1/6*rho*pi*(ed*d/2)^4*C_T;
-        K_f = K_f * prop.K;
-    end
-
+    utils;
     Omega = 2*pi*N/60;
+    d = prop.d;
+    p = prop.p;
+    ed = prop.ed;
+    k = prop.Nb * prop.c_d / 2;
+    theta = atan(p/(pi*d));
+    lambda_c = Va./(Omega*d/2);
+    lambda_c = 0;
+    
+    C_T = 4/3*k*theta*(1 - (1 - ed)^3) - ...
+          k*( sqrt((lambda_c + k).^2+k) - sqrt(k) ) * (1-(1-ed)^2);
+    
+    K_f = 1/6*rho*pi*(ed*d/2)^4*C_T;
+    K_f = K_f * prop.K;
+    
     T = Omega.^2 .* K_f;
-end
-
-function M = PropellerAeroMomentunParabole(N, Prop)
-%     Omega = 2*pi*N/60;
-    M = [1 -1 1 -1] * (Prop.C_aerial_momentum*(N + Prop.A_drift).^2);
 end
 
 function M = PropellerAeroMomentumPlain(N, prop, rho)
@@ -135,11 +146,4 @@ function M = PropellerAeroMomentumPlain(N, prop, rho)
     F = 1/2 * rho * S * C * (prop.d/2*Omega).^2;
     m_p = 3/4;      % точка приложения момента воздухом к винту
     M = F * (prop.d/2 * m_p);
-end
-
-% Сила аэродинамического сопротивления
-function F = AerialDrag(v, w, rho, S, C)
-    V = w + v;  % w - wind, v - vehicle speed;
-    % S - характерная площадь
-    F = - C * rho * V.^2/2 .* S;
 end
