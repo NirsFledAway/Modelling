@@ -152,29 +152,75 @@ function Fb = AerialDrag(Vb, Wb, rho)
     Va_vec = Vb - Wb;  % w - wind, v - ground speed; body frame
     Va = norm(Va_vec);
     alpha = atan2(Va_vec(2), Va_vec(1));    % attack angle
+    beta = atan2(Va_vec(3), Va_vec(1));     % скольжения angle
+    
+    Va_0 = 10; % скорость, для которой рассчитаны зависимости сил
+    rho_0 = 1.225;  % плотность воздуха при выведении зависимостей сил
+%     C_0 = 0.715 / (0.5*rho_0*Va_0^2);  % if alpha = 0, beta = 0;
+    % ----------------------------------------------------
     % alpha angle
+    alpha = abs(alpha);
+    alpha = sign(alpha)*mod(alpha, 180);
+    alpha = alpha + 180 * sign(90-alpha)*(abs(alpha)>90);
     if alpha >= 0 && alpha <= 20
-        F_0 = 0.6969 + 0.0022*(alpha+2.3409).^2;
-    elseif alpha >= -45 && alpha < 0
-        F_0 = 0.6969 + 0.0022*(-alpha+2.3409).^2;
+        F_xy = 0.6969 + 0.0022*(alpha+2.3409).^2;
     elseif alpha > 20 && alpha <= 90
-        F_0 = -0.000435*alpha^2 + 0.098161*alpha - 0.007685;
+        F_xy = -0.000435*alpha^2 + 0.098161*alpha - 0.007685;
 %         C_d = 5.5300 - 4.3500e-04*(alpha - 112.8287)^2;
+    elseif alpha >= -20 && alpha < 0
+        F_xy = 0.6969 + 0.0022*(-alpha+2.3409).^2;
     else
-        F_0 = 5.5300 - 4.3500e-04*(-alpha - 112.8287)^2;
+        F_xy = 5.5300 - 4.3500e-04*(-alpha - 112.8287)^2;
     end
-    C_D_alpha = F_0 / (0.5*rho*Va^2);
-    F_D = 0.5*rho*C_D_alpha*Va^2;
+%     C_D_alpha = F_0 / (0.5*rho_0*Va_0^2) - C_0;
+%     C_D_alpha = F_0 / (0.5*rho_0*Va_0^2);
+        C_xy = F_xy / (0.5*rho_0*Va_0^2);
+        C_x = C_xy * cos(alpha);
+        C_y = C_xy * sin(alpha);
+        
+        
     
-    Fa = [
-        (-1)*F_D;
-        0;
-        0;
-    ];  % в скоростной СК
-    c_a = cos(alpha); s_a = sin(alpha);
-    R_b_a = [ c_a s_a 0; -s_a c_a 0; 0 0 1];    % из связанной в скоростную
-    Fb = R_b_a' * Fa;
-    Fb = Fb*2;
+    %-----------------------------------------------------
+    % beta angle
+    b = abs(beta);
+    b = sign(b)*mod(b, 180);
+    b = b + 180 * sign(90-b)*(abs(b)>90);
+    if b >= 0 && b <= 10
+        F_xz = 2.81659e-7*b^6 - 5.42002e-6*b^5 + 0.0000194033*b^4 + 0.000149284*b^3 - 0.000766659*b^2 + 0.00100311*b + 0.715;
+    elseif b > 10 && b <= 32
+        F_xz = 0.000072941364*b^2+0.004725990899*b+0.676768850038;
+    elseif b > 32 && b <= 47
+        F_xz = 0.000014983590*b^3-0.002016505717*b^2+0.091338487517*b-0.446303186240;
+    elseif b > 47 && b <= 66
+        F_xz = -0.000005286789*b^3+0.000705178007*b^2-0.030877630605*b+1.390205322532;
+    elseif b > 66 && b <= 90
+        F_xz = 0.000000379469*b^3+0.000021666922*b^2-0.013615025702*b+1.599215019960;            
+    else
+        F_xz = 0;
+    end
+    C_xz = F_xz / (0.5*rho_0*Va_0^2);
+    C_z = C_xz * sin(beta);
+%     C_D_beta = F0 / (0.5*rho_0*Va_0^2) - C_0;
     
+    
+    % ----------------------------------------------
+    % Drug force
+%     F_D = 0.5*rho*Va^2 * (C_0 + alpha*C_D_alpha + beta*C_D_beta);
+    
+%     F_D = 0.5*rho*Va^2 * (C_D_alpha);
+%     
+%     Fa = [
+%         (-1)*F_D;
+%         0;
+%         0;
+%     ];  % в скоростной СК
+%     c_a = cos(alpha); s_a = sin(alpha);
+%     c_b = cos(beta); s_b = sin(beta);
+%     % TODO: перепроверить, кто в кого переводитъ
+%     R_a_b = [c_a*c_b -s_a*c_b s_b; s_a c_a 0; -c_a*s_b s_a*s_b c_b];    % из скоростной с связанную
+% %     R_b_a = [ c_a s_a 0; -s_a c_a 0; 0 0 1];    % из связанной в скоростную
+% %     Fb = R_b_a' * Fa;
+%         Fb = R_a_b * Fa;
+    Fb = (-1)*(1/2)*rho*Va^2 * [C_x; C_y; C_z];
 end
     

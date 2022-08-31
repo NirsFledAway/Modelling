@@ -25,7 +25,7 @@ MAV.pd0 = MAV.z0;
 
 MAV.w0     = 0;     % initial velocity along body z-axis
 MAV.phi0 = 0; % initial roll angle
-MAV.psi0 = 0; % initial yaw angle
+MAV.psi0 = deg2rad(20); % initial yaw angle
 MAV.theta0 = 0; % initial pitch angle
 e = Euler2Quaternion(MAV.phi0, MAV.theta0, MAV.psi0);
 MAV.e0     = e(1);  % initial quaternion
@@ -85,7 +85,7 @@ MAV.Control.u_xz_max = 2 * (MAV.Motor.Nmax*0.9)^2;
 % Environment
 % Среднегодовая скорость ветра
 MAV.Env.Wind_speed_h = 6;   % измеренная на высоте
-MAV.Env.Wind_speed_statistics = 20;
+MAV.Env.Wind_speed_statistics = 20; 
 MAV.Env.Wind_speed = [
     0
     0
