@@ -25,13 +25,8 @@ MAV.pd0 = MAV.z0;
 
 MAV.w0     = 0;     % initial velocity along body z-axis
 MAV.phi0 = 0; % initial roll angle
-MAV.psi0 = deg2rad(20); % initial yaw angle
+MAV.psi0 = deg2rad(0); % initial yaw angle
 MAV.theta0 = 0; % initial pitch angle
-e = Euler2Quaternion(MAV.phi0, MAV.theta0, MAV.psi0);
-MAV.e0     = e(1);  % initial quaternion
-MAV.e1     = e(2);
-MAV.e2     = e(3);
-MAV.e3     = e(4);
 MAV.p0     = 0;     % initial body frame roll rate
 MAV.q0     = 0;     % initial body frame pitch rate
 MAV.r0     = 0;     % initial body frame yaw rate
@@ -224,4 +219,5 @@ function K_f = Gaurang(prop, rho, Va)
     K_f = K_f * prop.K;
     
     K_f = K_f * (2*pi/60)^2;
+    % T = K_f * sum(N^2)
 end

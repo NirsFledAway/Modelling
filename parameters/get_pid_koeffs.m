@@ -4,6 +4,17 @@ Modes = struct()
 
 % Stabilize fast
 Reg = struct()
+% P I D
+% Reg.PID.theta = [
+%     
+% ];
+% Reg.PID.psi = [
+%     
+% ];
+% Reg.PID.phi = [
+%     
+% ];
+% ];
 Reg.PID1 = [
     200
     0
