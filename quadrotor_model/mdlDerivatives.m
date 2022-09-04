@@ -128,7 +128,9 @@ end
 
 function M = PropellerAeroMomentunParabole(N, Prop)
 %     Omega = 2*pi*N/60;
-    M = [1 -1 1 -1] * (Prop.C_aerial_momentum*(N + Prop.A_drift).^2);
+%     M = [1 -1 1 -1] * (Prop.C_aerial_momentum*(N + Prop.A_drift).^2);
+    % для адекватной работы с регулятором без сдвига по аргументу
+    M = [1 -1 1 -1] * (0.0000000001066078*(N.^2) + 0.0077448458147488); 
 end
 
 function M = PropellerAeroMomentumPlain(N, prop, rho)

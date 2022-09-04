@@ -139,11 +139,11 @@ fuck = [x'./1e3; y']
 figure;
 scatter(x, y); hold on;
 % plot(x, y1);
-plot(x, y2);
+% plot(x, y2);
 x = x;
 % plot(x, -0.01 + 7.8453e-09*(2*pi*x/60).^2 );
 % plot(x, 0.00000000007009*x.^2 + 0.00000160889000*x - 0.00778245010321);
-plot(x, 0.00000000008730*x.^2+0.00000084282100*x-0.00027874970727);
+    % plot(x, 0.00000000008730*x.^2+0.00000084282100*x-0.00027874970727);
 hold on
 c = 8.7300e-11;
 a = -4.8272e+03;
@@ -151,15 +151,41 @@ b = -0.0023;
 % % 8.7e11*(x+4800) - 0.0023
 
 plot(x, c*(x-a).^2+b);
-plot(x, c*(x-a).^2);
-legend('real', 'quadratic approx', 'podbor', 'podbor1', 'podbor2');
+% plot(x, c*(x-a).^2);
+% Аппроксимация с точкой 0 
+c = 0.0000000000880085;
+a = 0.0000008149303785;
+b = -0.0000350181946204;
+x1 = 0:10:40000;
+% plot(x1, c*x1.^2 + a*x1 + b)
+% с центром параболы в (0, 0) без сдвигов
+% c = 1.154077248e-10;
+c = 0.0000000001066078;
+b = 0.0077448458147488;
+plot(x1, c*x1.^2 + b)
+% plot(x1, 1.221251133648546e-10*x1.^2)
+plot(x1, 1.221255238644330e-10*x1.^2)
+legend({
+'real'
+% 'quadratic approx'
+% 'podbor'
+'podbor1'
+% 'podbor2'
+% 'podbor_2.1'
+'podbor_zeroy'
+
+'podbor zeroy non-drift'
+});
 xlabel('rpm_approx');
 xlim([0; 33000]);
 % ylim([0; 0.15]);
 % c*(x-a)^2+b = cx^2 - 2*a**c*x + (c*a^2 + b) = 
 % c = 0.00000000008730
 % a = 
-
+%%
+rpm_approx
+sprintf("%d ", rpm_approx.^2)
+sprintf("%f ", momentum)
 %%
 % a*x^2 + b*x + c = f*(x-e)^2 + g
 % -----           = f*x^2 - 2*e*f*x + f*e^2 + g
@@ -182,3 +208,52 @@ thrust = A(:,1);
 curr = A(:,2);
 figure;
 plot(curr, sqrt(thrust));
+
+%%
+sprintf("%d ", rpm_approx)
+sprintf("%f ", momentum)
+%%
+figure; hold on;
+plot(rpm_approx.^2, momentum)
+plot(x1.^2, 1.221255238644330e-10*x1.^2)
+c = 0.0000000001066078;
+b = 0.0077448458147488;
+plot(x1.^2, c*x1.^2 + b)
+c = 8.7300e-11;
+a = -4.8272e+03;
+b = -0.0023;
+% % 8.7e11*(x+4800) - 0.0023
+
+plot(x1.^2, c*(x1-a).^2+b);
+legend([
+    "god-shit"
+    "non-drift"
+    "drift"
+    "old double-drift"
+]);
+%%
+rpm = [8250 9900 11550 13200 14850 16500 18150 19800 21450 28050];
+y = [0.008596 0.014781 0.020105 0.025872 0.032846 0.037434 0.047704 0.054834 0.059194 0.097494]
+f = @(c) average_quadraric_error(c*rpm_approx.^2, momentum);
+f(5.000000002500000e-07)
+%%
+C_T_opt = dichotomi_optimization(f, [1e-20, 1e-6], 1e-20)
+
+function x_min = dichotomi_optimization(f, K0, e)
+    a = K0(1); b = K0(2);
+    delta = e/2;
+    while b - a > 2*e
+        x1 = (a + b - delta)/2;
+        x2 = (a + b + delta)/2;
+        if f(x1) <= f(x2)
+            b = x2;
+        else
+            a = x1;
+        end
+    end
+    x_min = (a + b)/2;
+end
+
+function err = average_quadraric_error(A, B)
+    err = sum((A - B).^2) / (length(A)-1);
+end
