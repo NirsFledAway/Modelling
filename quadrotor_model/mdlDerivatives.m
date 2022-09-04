@@ -83,9 +83,9 @@ function [Fb, Mb] = forces_moments(t,x,uu, wind_speed, MAV, cache)
 
     M_y_aerial = PropellerAeroMomentunParabole(N, MAV.Prop); % экспериментально подобранная зависимость, по факту включает в себя момент инерции
     
-%     M_y_inertia = (MAV.Prop.J_y + MAV.Motor.J_rotor) .* sum(MAV.Prop.K_direction .* Omega.^2)
+    % dOmega = 2*pi*dN/60;
+%     M_y_inertia = (MAV.Prop.J_y + MAV.Motor.J_rotor) .* sum(MAV.Prop.K_direction .* dOmega.^2)
     M_y_inertia = 0;
-%     M_y_aerial = 0;
 
     M_motors = [0 1 0]' * (M_y_aerial + M_y_inertia);
 
