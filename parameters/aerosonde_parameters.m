@@ -15,17 +15,19 @@ MAV.v0     = 0;     % initial velocity along body y-axis
 MAV.x0    = 0;     % initial North position
 MAV.y0    = 0;     % для полета за целью
 % MAV.y0    = 2;      % для стабилизации на точке
-MAV.z0    = 6;     % initial Zg position
-MAV.u0     = 0;     % initial velocity along body x-axis
-MAV.v0     = 0;
+MAV.z0    = 0.5;     % initial Zg position
+MAV.vx0     = 0;     % initial velocity along body x-axis
+MAV.vy0     = 0;
 
 MAV.pn0 = MAV.x0;
 MAV.pe0 = MAV.y0;
 MAV.pd0 = MAV.z0;
+MAV.u0 = MAV.vx0;
+MAV.v0 = MAV.vy0;
 
 MAV.w0     = 0;     % initial velocity along body z-axis
 MAV.phi0 = 0; % initial roll angle
-MAV.psi0 = deg2rad(0); % initial yaw angle
+MAV.psi0 = deg2rad(45); % initial yaw angle
 MAV.theta0 = 0; % initial pitch angle
 MAV.p0     = 0;     % initial body frame roll rate
 MAV.q0     = 0;     % initial body frame pitch rate

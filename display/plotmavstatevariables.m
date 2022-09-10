@@ -67,7 +67,7 @@ function plotMAVStateVariables(uu)
     variables = create_graph_params({
         {'x', x, x_target};  % 1
         {'y', y, y_target};  % 2
-        {'z', z, z_target, Inf};    % 3
+        {'z', z, z_target};    % 3
         {'v_x', v_x_g, v_x_target, v_x};    % 4
         {'v_y', v_y_g, v_y_target, v_y};    % 5
         {'v_z', v_z_g, v_z_target, v_z};    % 6
@@ -130,7 +130,7 @@ function [storage, y_range] = store_points(storage, y_range, variables, t, itera
     storage{end}(iteration) = t;
     
     if isempty(y_range)
-        y_range = Inf(var_n, 2) .* [1 -1];
+        y_range = 1e-5*ones(var_n, 2) .* [-1 1];
     end
     
     for paramIndex = 1:var_n
@@ -230,8 +230,8 @@ function packs = create_graph_params(template)
 
 function lims = get_y_limits(data_range, offset_factor)
     if data_range(1) == data_range(2) && data_range(1) == 0
-       data_range(1) = -1e-20;
-       data_range(2) = 1e-20;
+       data_range(1) = -1e-5;
+       data_range(2) = 1e-5;
     end
     % y_min - 5%; y_max + 5%
     lims = data_range + offset_factor*[-abs(data_range(1)), abs(data_range(2))];

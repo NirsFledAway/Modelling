@@ -16,7 +16,8 @@ ksi = 0.9;    % колебательность контура, задаётся
 % 0.8 - 0.095sec 1.5% overshoot
 % 0.9 - 0.12sec
 % 1.0 - 0.148sec
-
+opt = stepDataOptions;
+opt.StepAmplitude = deg2rad(5);
 %% рыскание
 e_max = deg2rad(5);    % максимальное отклонение по углу
 Nmin = 0;
@@ -32,19 +33,96 @@ C_m = 1.066078e-10; % коэффициент сопротивления проп
 k_T = C_m / J_y;
  
 ksi = 0.9;    % колебательность контура, задаётся
-
-%%
-k_p = u_max / e_max
-w_n = sqrt(k_T*k_p);    % собственная частота колебательного звена
-k_d = 2*ksi*w_n / k_T
-W_theta = tf([k_p*k_T], [1 k_d*k_T k_T*k_p])
-%%
-bode(W_theta);
-%%
 opt = stepDataOptions;
 opt.StepAmplitude = deg2rad(5);
+%%
+k_p = u_max / e_max
+w_n = sqrt(k_T*k_p)    % собственная частота колебательного звена
+k_d = 2*ksi*w_n / k_T
+W = tf([k_p*k_T], [1 k_d*k_T k_T*k_p])
+%% Х
+m = 0.383;
+g = 9.81;
+T = m * g;
+e_max = 1.5;
+u_max = deg2rad(45);
+A = 1/g;
+
+zeta = 1;
+k_p = u_max / e_max
+% k_p = k_p * 2
+w_n = sqrt(k_p/A);    % собственная частота колебательного звена
+k_d = 2*zeta*w_n*A
+% k_i = (T*k_p)/(2*zeta)^2 * (1/T)
+k_i = 0;
+
+
+
+W_pd = tf([k_p/A], [1 k_d/A k_p/A])
+W_pid = tf([k_p/A k_i/A], [1 k_d/A k_p/A k_i/A])
+W_open = tf([g], [1 0 0]);
+
+W = W_pid
+
+opt = stepDataOptions;
+opt.StepAmplitude = 1;    % meters
+%% Vx малая
+g = 9.81;
+A = 1/g;
+
+zeta = 0.7;
+w_n_theta = 39.4720;    % rad/s
+w_n_phi = 52.6379;
+% w_n_x = (1/5) * w_n_theta
+w_n_x = (1/8) * w_n_phi
+k_i = w_n_x^2 * A
+k_p = 2*zeta*w_n_x * A
+
+W_pd = tf([k_p/A k_i/A], [1 k_p/A k_i/A])
+W_open = tf([1/g], [1 0]);
+
+W = W_pd
+
+opt = stepDataOptions;
+opt.StepAmplitude = 10;    % meters
+
 close all;
 figure;
-step(W_theta, opt)
+step(W, opt)
+%%
+bode(W)
+%% old
+k_p = 50;
+k_d = 10;
+k_i = 50;
+%% new с мелким интегратором
+k_p = 3.9
+k_d = 1.1339
+k_i = 0.1
+%% хз откуда но робит норм
+k_p = 5.7721
+k_d = 1.6397
+k_i = 0.1;
+%% new с интегратором крупнее и ограничением на него 0.1
+k_p = 4.8313;
+k_i = 0.5;
+k_d = 0.9931;
 
 %%
+syms psii
+getRotationMatrix([0 0 psii])
+function R = getRotationMatrix(angles)
+            phi = 1; t = 2; psi = 3; %indices
+            s = sin(angles);
+            c = cos(angles);
+%             R = [...
+%                 c(psi)*c(t), s(phi)*s(psi) + c(phi)*c(psi)*s(t), c(psi)*s(phi)*s(t) - c(phi)*s(psi); ...
+%                 -s(t),      c(phi)*c(t),                  c(t)*s(phi);                     ...
+%                 c(t)*s(psi), c(phi)*s(psi)*s(t) - c(psi)*s(phi),    c(phi)*c(psi) + s(phi)*s(psi)*s(t)   ...
+%             ];
+            R = [
+                c(t)*c(psi) s(t)    -c(t)*s(psi);
+                -c(phi)*s(t)*c(psi)+s(phi)*s(psi) c(phi)*c(t) c(phi)*s(t)*s(psi)+s(phi)*c(psi);
+                s(phi)*s(t)*c(psi)+c(phi)*s(psi)  -s(phi)*c(t)    -s(psi)*s(t)*s(phi)+c(psi)*c(phi);
+            ];
+        end
