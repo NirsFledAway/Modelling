@@ -43,7 +43,7 @@ function drawQuadrotor(uu)
     persistent Target
     
     % Must be before drawing to prevent jumps and make atimation glider
-    need_follow_quad = 1;
+    need_follow_quad = 0;
     if need_follow_quad && ~isempty(aircraft_handle)
         ctr = [x y z]';
         x_size = 1;
@@ -52,6 +52,11 @@ function drawQuadrotor(uu)
         set(aircraft_handle.Parent, 'XLim', [ctr(3)-z_size/2, ctr(3) + z_size/2], ...
             'YLim', [ctr(1) - x_size/2, ctr(1) + x_size/2], ...
             'ZLim', [ctr(2) - y_size/2, ctr(2) + y_size/2]);
+    end
+    if ~need_follow_quad && ~isempty(aircraft_handle)
+        set(aircraft_handle.Parent, 'XLim', [-1, 11], ...
+            'YLim', [-1, 11], ...
+            'ZLim', [-1, 11]);
     end
  
     % Init
