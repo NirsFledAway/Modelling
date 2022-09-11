@@ -12,10 +12,10 @@ MAV.pd0    = 0;     % initial Zg position
 MAV.u0     = 0;     % initial velocity along body x-axis
 MAV.v0     = 0;     % initial velocity along body y-axis
 
-MAV.x0    = 10;     % initial North position
+MAV.x0    = 0;     % initial North position
 MAV.y0    = 0;     % для полета за целью
 % MAV.y0    = 2;      % для стабилизации на точке
-MAV.z0    = 0;     % initial Zg position
+MAV.z0    = 6;     % initial Zg position
 MAV.vx0     = 0;     % initial velocity along body x-axis
 MAV.vy0     = 0;
 
@@ -32,6 +32,22 @@ MAV.theta0 = 0; % initial pitch angle
 MAV.p0     = 0;     % initial body frame roll rate
 MAV.q0     = 0;     % initial body frame pitch rate
 MAV.r0     = 0;     % initial body frame yaw rate
+
+pos = [MAV.x0  MAV.y0 MAV.z0]';
+vel = [0 0 0]';
+acc = [0 0 0]';
+MAV.desired_fixed = [pos vel acc];
+
+% Environment
+Wind_ON = 0;
+% Среднегодовая скорость ветра
+MAV.Env.Wind_speed_h = 6;   % измеренная на высоте
+MAV.Env.Wind_speed_statistics = 10; 
+MAV.Env.Wind_speed = [
+    0
+    0
+    0
+];
    
 %physical parameters of airframe
 MAV.gravity = 9.81;
@@ -78,16 +94,6 @@ MAV.Motor.T = 3.5/1000; % 0.007 по прикидкам статьи на мед
 MAV.Motor;
 
 MAV.Control.u_xz_max = 2 * (MAV.Motor.Nmax*0.9)^2;
-
-% Environment
-% Среднегодовая скорость ветра
-MAV.Env.Wind_speed_h = 6;   % измеренная на высоте
-MAV.Env.Wind_speed_statistics = 15; 
-MAV.Env.Wind_speed = [
-    0
-    0
-    0
-];
 
 % MAV.J = diag([MAV.Jx MAV.Jy MAV.Jz]);
 % MAV.J = [ ...

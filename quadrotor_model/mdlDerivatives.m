@@ -70,6 +70,7 @@ function [Fb, Mb] = forces_moments(t,x,uu, wind_speed, MAV, cache)
 %     wind = R_g_b * MAV.Env.Wind_speed;
     wind = wind_speed;
     f_aerial_drag = AerialDrag(x(4:6), wind, MAV.rho);
+%     f_aerial_drag = [0 0 0]';
 % f_aerial_drag = AerialDrag(x(4:6), wind, MAV.rho, MAV.Body.S, MAV.Body.C_aerial_drag_1);
     Fb = f_gravity + f_aerial_drag + f_thrust;    % результирующая сил в связанной СК
 
