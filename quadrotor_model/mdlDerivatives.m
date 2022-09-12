@@ -155,7 +155,9 @@ function Fb = AerialDrag(Vb, Wb, rho)
     Va_vec = Vb - Wb;  % w - wind, v - ground speed; body frame
     Va = norm(Va_vec);
     alpha = atan2(Va_vec(2), Va_vec(1));    % attack angle
-    beta = atan2(Va_vec(3), Va_vec(1));     % скольжения angle
+%     beta = atan2(-Va_vec(3), Va_vec(1));     % скольжения angle
+    beta = asin(Va_vec(3)/max( norm(Va), 1e-5 ));
+    
     
     Va_0 = 10; % скорость, для которой рассчитаны зависимости сил
     rho_0 = 1.225;  % плотность воздуха при выведении зависимостей сил

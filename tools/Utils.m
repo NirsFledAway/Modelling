@@ -3,7 +3,8 @@ classdef Utils
         function m = inch2met(inch)
             m = inch * 2.54 / 100;
         end
-
+        
+        % матрица поворота (g->b) {из Земной нормальной в связанную СК}
         function R = getRotationMatrix(angles)
             phi = 1; t = 2; psi = 3; %indices
             s = sin(angles);

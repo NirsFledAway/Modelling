@@ -86,9 +86,26 @@ W = W_pd
 opt = stepDataOptions;
 opt.StepAmplitude = 10;    % meters
 
+%% Vx большая
+g = 9.81;
+A = 1/g;
+
+u_max = deg2rad(80);
+e_max = 20;
+k_p = u_max / e_max
+W_p = tf([k_p/A], [1 k_p/A])
+W_open = tf([g], [1 0]);
+
+W = W_p
+
+opt = stepDataOptions;
+opt.StepAmplitude = 50;    % meters
+%%
 close all;
 figure;
 step(W, opt)
+
+
 %%
 bode(W)
 %% old

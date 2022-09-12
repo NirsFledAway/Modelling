@@ -1,5 +1,5 @@
-init_script;
-need_wind = 1;
+% init_script;
+% need_wind = 1;
 % if need_wind
 %     setup_block_param("Wind On/Off", "Port", 1);
 % end
@@ -8,9 +8,28 @@ need_wind = 1;
 %%
 % Wind_ON = Simulink.Parameter(1);
 % Wind_ON = 0;
-sim("simulink/run_quadrotor_2020a.slx", "TimeOut", 30)
+sim("simulink/run_quadrotor_2020a.slx", "StopTime", '60', "Debug", "off")
 
 %%
-function setup_block_param(labels, param, value)
-    set_param(['run_quadrotor_2020a/' labels(:)], param, string(value));
+Vg = [10 0 2]';
+phi = deg2rad(20);
+theta = deg2rad(-20);
+psi = deg2rad(0);
+Vb = getRotationMatrix([phi theta psi]) * Vg
+V_xy = sqrt(Vb(1)^2 + Vb(2)^2);
+% beta = rad2deg(acos(V_xy/norm(Vg))) * (-1) * sign(Vb(3)) 
+beta_beard_1 = -rad2deg(asin(Vb(3)/norm(Vg)))
+% beta_beard_2 = -rad2deg(atan(Vb(3)/V_xy))
+% beta_old_fuck = atan2(-Vb(3), Vb(1))
+
+% матрица поворота (g->b) {из Земной нормальной в связанную СК}
+function R = getRotationMatrix(angles)
+    phi = 1; t = 2; psi = 3; %indices
+    s = sin(angles);
+    c = cos(angles);
+    R = [
+        c(t)*c(psi) s(t)    -c(t)*s(psi);
+        -c(phi)*s(t)*c(psi)+s(phi)*s(psi) c(phi)*c(t) c(phi)*s(t)*s(psi)+s(phi)*c(psi);
+        s(phi)*s(t)*c(psi)+c(phi)*s(psi)  -s(phi)*c(t)    -s(psi)*s(t)*s(phi)+c(psi)*c(phi);
+    ];
 end
