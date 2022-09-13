@@ -33,13 +33,13 @@ MAV.p0     = 0;     % initial body frame roll rate
 MAV.q0     = 0;     % initial body frame pitch rate
 MAV.r0     = 0;     % initial body frame yaw rate
 
-pos = [MAV.x0  MAV.y0 MAV.z0]';
-vel = [0 0 0]';
+pos = [MAV.x0+40  MAV.y0+20 MAV.z0+20]';
+vel = [10 0 0]';
 acc = [0 0 0]';
 MAV.desired_fixed = [pos vel acc];
 
 % Environment
-Wind_ON = 1;
+Wind_ON = 0;
 % Среднегодовая скорость ветра
 MAV.Env.Wind_speed_h = 6;   % измеренная на высоте
 MAV.Env.Wind_speed_statistics = 10; 

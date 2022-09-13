@@ -8,8 +8,12 @@
 %%
 % Wind_ON = Simulink.Parameter(1);
 % Wind_ON = 0;
-sim("simulink/run_quadrotor_2020a.slx", "StopTime", '3', "Debug", "off")
+sim("simulink/run_quadrotor_2020a.slx", "StopTime", '10', "Debug", "off")
 
+%%
+close all
+W = tf([15], [1 15])
+step(W)
 %%
 Vg = [10 0 2]';  
 Vb = getRotationMatrix([phi theta psi]) * Vg
