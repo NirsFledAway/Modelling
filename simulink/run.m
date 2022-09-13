@@ -8,7 +8,7 @@
 %%
 % Wind_ON = Simulink.Parameter(1);
 % Wind_ON = 0;
-sim("simulink/run_quadrotor_2020a.slx", "StopTime", '25', "Debug", "off")
+sim("simulink/run_quadrotor_2020a.slx", "StopTime", '3', "Debug", "off")
 
 %%
 Vg = [10 0 2]';  
