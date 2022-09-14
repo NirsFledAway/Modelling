@@ -41,7 +41,7 @@ acc = [0 0 0]';
 MAV.desired_fixed = [pos vel acc];
 
 % Environment
-Wind_ON = 0;
+Wind_ON = 1;
 % Среднегодовая скорость ветра
 MAV.Env.Wind_speed_h = 6;   % измеренная на высоте
 MAV.Env.Wind_speed_statistics = 6; 
