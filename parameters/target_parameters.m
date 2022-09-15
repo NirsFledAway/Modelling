@@ -1,9 +1,14 @@
-TARGET.t0 = 2;
+TARGET.t0 = 0;
 TARGET.r0 = [
     20;
     0;
     20
 ];
+% TARGET.r0 = [
+%     0;
+%     0;
+%     0
+% ];
 TARGET.v0 = [
     9.8;
     0;
