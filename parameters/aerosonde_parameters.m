@@ -15,7 +15,7 @@ MAV.u0     = 0;     % initial velocity along body x-axis
 MAV.v0     = 0;     % initial velocity along body y-axis
 
 MAV.x0    = 0;     % initial North position
-MAV.y0    = 0;     % для полета за целью
+MAV.y0    = 10;     % для полета за целью
 % MAV.y0    = 2;      % для стабилизации на точке
 MAV.z0    = 0;     % initial Zg position
 MAV.vx0     = 0;     % initial velocity along body x-axis

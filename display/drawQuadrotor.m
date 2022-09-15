@@ -33,9 +33,12 @@ function drawQuadrotor(uu)
     x_target = uu_cell{target_idx(1)};
     y_target = uu_cell{target_idx(2)};
     z_target = uu_cell{target_idx(3)};
+    v_x_target = uu_cell{target_idx(4)};
+    v_z_target = uu_cell{target_idx(6)};
     
     aircraft_state = struct('x', x, 'y', y, 'z', z, 'phi', phi, 'theta', theta, 'psi', psi);
-    target_state = struct('x', x_target, 'y', y_target, 'z', z_target);
+    target_state = struct('x', x_target, 'y', y_target, 'z', z_target, ...
+        'psi', atan2(-v_z_target, v_x_target));
 
     % define persistent variables 
     persistent aircraft_handle;
@@ -46,9 +49,9 @@ function drawQuadrotor(uu)
     need_follow_quad = 1;
     if need_follow_quad && ~isempty(aircraft_handle)
         ctr = [x y z]';
-        x_size = 1;
-        y_size = 1;
-        z_size = 1;
+        x_size = 3;
+        y_size = 6;
+        z_size = 3;
         set(aircraft_handle.Parent, 'XLim', [ctr(3)-z_size/2, ctr(3) + z_size/2], ...
             'YLim', [ctr(1) - x_size/2, ctr(1) + x_size/2], ...
             'ZLim', [ctr(2) - y_size/2, ctr(2) + y_size/2]);
@@ -101,6 +104,7 @@ function handle = drawQuadrotorBody(Aircraft, Target, ...
 
   Aircraft.V = translate(Aircraft.V', a.x, a.y, a.z)';  % translate Aircraft
   % transform vertices from NED to XYZ (for matlab rendering)
+  Target.V = rotate(Target.V', 0, 0, t.psi)';
   Target.V = translate(Target.V', t.x, t.y, t.z)';
   V = [Aircraft.V; Target.V];
   F = [Aircraft.F; Target.F];
@@ -333,7 +337,9 @@ kube = [ ...
    1 -1 1;
    -1 -1 1;
 ];
-david_star = (kube + [0 -1 0]) .* [0.2 0.2 0.2];
+% car_radius = 0.2;
+car_radius = 0.5;
+david_star = (kube + [0 -1 0]) .* [1 1 1]*car_radius;
 
 V = [ ...
     david_star;
