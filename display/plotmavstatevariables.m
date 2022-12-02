@@ -1,6 +1,6 @@
 function plotMAVStateVariables(uu)
     FPS = 5;
-    PPS = 80;   % points per second
+    PPS = 100;   % points per second
     t = uu(end);
     persistent lastWorkedTime
     if isempty(lastWorkedTime)
@@ -62,21 +62,27 @@ function plotMAVStateVariables(uu)
         theta_c, theta_c_dot, ...
     ] = angles_deg_cell{:};
 
+    persistent placeholderz
+    if isempty(placeholderz)
+        placeholderz = z;
+    else
+        placeholderz = Inf;
+    end
     
     g = 9.81;
     variables = create_graph_params({
-        {'x', x, x_target};  % 1
-        {'y', y, y_target};  % 2
-        {'z', z, z_target};    % 3
-        {'v_x', v_x_g, v_x_target, v_x};    % 4
-        {'v_y', v_y_g, v_y_target, v_y};    % 5
-        {'v_z', v_z_g, v_z_target, v_z};    % 6
-        {'\phi', phi, phi_c};    % 7
-        {'\psi', psi, psi_c};    % 8
-        {'\vartheta', theta, theta_c};    % 9
-        {'\omega_x', w_x, phi_c_dot};    % 10
-        {'\omega_y', w_y, psi_c_dot};    % 11
-        {'\omega_z', w_z, theta_c_dot};    % 12
+        {'x, м', x, x_target};  % 1
+        {'y, м', y, y_target};  % 2
+        {'z, м', z, z_target};    % 3
+        {'v_x, м/с', v_x_g, v_x_target, v_x};    % 4
+        {'v_y, м/с', v_y_g, v_y_target, v_y};    % 5
+        {'v_z, м/с', v_z_g, v_z_target, v_z};    % 6
+        {'\phi, град', phi, phi_c};    % 7
+        {'\psi, град', psi, psi_c};    % 8
+        {'\vartheta, град', theta, theta_c};    % 9
+        {'\omega_x, град/с', w_x, phi_c_dot};    % 10
+        {'\omega_y, град/с', w_y, psi_c_dot};    % 11
+        {'\omega_z, град/с', w_z, theta_c_dot};    % 12
         {'u_1', u1};          % 13
         {'u_x', u_x};          % 14
         {'u_y', u_y};          % 15
@@ -94,6 +100,8 @@ function plotMAVStateVariables(uu)
     % angular = [9; 12]';
     %   map = [1 2 3; 4 5 6]';
     map = [linear; angular; [13 0 0; 14 15 16]];
+%     map = [linear];
+%     map = [2 5; 0 13];
     %   map = [map(:, 1), map(:, 2), [15 18; 16 19; 17 20; 1 1]];
 
     handle_data(variables, map, t, need_draw);
@@ -173,7 +181,7 @@ function handles = draw(variables, map, handles, storage, y_range, iteration)
                 if i == 1 && j == 2
                   Lgnd = legend('show');
                 Lgnd.Position(1) = 0.9;
-                legend('basic', 'desired', 'bound', 'error');    
+                legend('basic', 'desired', 'body', 'error');    
                 end
             else
                 graph(param.handle, param.name, storage{paramIndex}(:, 1:iteration), ...
@@ -195,14 +203,15 @@ function handle = graph(handle, name, storage, time, y_range)
         axes = get(handle(1), 'Parent');
         set(axes, 'XLimMode', 'manual', 'YLimMode', 'manual', ...
             'UserData', y_range, ...
-            'XLim', [0 1], ...
+            'XLim', [0 0.2], ...
             'YLim', get_y_limits(y_range, 0.05));
-        set(get(gca, 'YLabel'), 'Rotation', 0.0);
+        set(get(gca, 'YLabel'), 'Rotation', 90.0);
         ylabel(name)
+        xlabel('t, c')
     else
         axes = get(handle(1), 'Parent');
         y_lim = get_y_limits(y_range, 0.05);
-        set(axes, 'YLim', y_lim, 'XLim', [0, max(t, 1)], 'UserData', y_range);
+        set(axes, 'YLim', y_lim, 'XLim', [0, max(t, 0.2)], 'UserData', y_range);
         
         t_data = time;
         for i = 1:length(values)

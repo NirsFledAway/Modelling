@@ -150,7 +150,7 @@ a = -4.8272e+03;
 b = -0.0023;
 % % 8.7e11*(x+4800) - 0.0023
 
-plot(x, c*(x-a).^2+b);
+% plot(x, c*(x-a).^2+b);
 % plot(x, c*(x-a).^2);
 % Аппроксимация с точкой 0 
 c = 0.0000000000880085;
@@ -162,22 +162,23 @@ x1 = 0:10:40000;
 % c = 1.154077248e-10;
 c = 0.0000000001066078;
 b = 0.0077448458147488;
-plot(x1, c*x1.^2 + b)
+plot(x1, c*x1.^2 + b, 'LineWidth', 2)
 % plot(x1, 1.221251133648546e-10*x1.^2)
-plot(x1, 1.221255238644330e-10*x1.^2)
+% plot(x1, 1.221255238644330e-10*x1.^2, 'LineWidth', 2)
 legend({
-'real'
+'Эксперимент'
 % 'quadratic approx'
 % 'podbor'
-'podbor1'
+% 'podbor1'
 % 'podbor2'
 % 'podbor_2.1'
-'podbor_zeroy'
+'Аппроксимация'
 
-'podbor zeroy non-drift'
+% 'Без сдвига'
 });
-xlabel('rpm_approx');
+xlabel('RPM_{approx}');
 xlim([0; 33000]);
+ylabel('M, Н\cdot м');
 % ylim([0; 0.15]);
 % c*(x-a)^2+b = cx^2 - 2*a**c*x + (c*a^2 + b) = 
 % c = 0.00000000008730
