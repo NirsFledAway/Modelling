@@ -3,7 +3,7 @@ addpath('../tools');
 clc;
 clear all
 close all
-utils
+% utils
 
 target_parameters;
 
@@ -14,11 +14,11 @@ MAV.pd0    = 0;     % initial Zg position
 MAV.u0     = 0;     % initial velocity along body x-axis
 MAV.v0     = 0;     % initial velocity along body y-axis
 
-MAV.x0    = 20;     % initial North position
-MAV.y0    = 0;     % для полета за целью
+MAV.x0    = 0;     % initial North position
+MAV.y0    = 10;     % для полета за целью
 % MAV.y0    = 2;      % для стабилизации на точке
-MAV.z0    = 60;     % initial Zg position
-MAV.vx0     = 10;     % initial velocity along body x-axis
+MAV.z0    = 0;     % initial Zg position
+MAV.vx0     = 0;     % initial velocity along body x-axis
 MAV.vy0     = 0;
 
 MAV.pn0 = MAV.x0;
@@ -36,7 +36,7 @@ MAV.q0     = 0;     % initial body frame pitch rate
 MAV.r0     = 0;     % initial body frame yaw rate
 
 pos = [MAV.x0  MAV.y0 MAV.z0]';
-vel = [10 0 0]';
+vel = [0 0 0]';
 acc = [0 0 0]';
 MAV.desired_fixed = [pos vel acc];
 
@@ -44,7 +44,7 @@ MAV.desired_fixed = [pos vel acc];
 Wind_ON = 1;
 % Среднегодовая скорость ветра
 MAV.Env.Wind_speed_h = 6;   % измеренная на высоте
-MAV.Env.Wind_speed_statistics = 15; 
+MAV.Env.Wind_speed_statistics = 6; 
 MAV.Env.Wind_speed = [
     0
     0
@@ -70,8 +70,8 @@ MAV.Body.C_aerial_drag_1 = 1.0; % 0.2 .. 1.2 Аэродинамическоий 
 MAV.rho = 1.19;
 
 % Пропеллер
-MAV.Prop.d = inch2met(5.1); % диаметр
-MAV.Prop.p = inch2met(4.5);   % шаг
+MAV.Prop.d = Utils.inch2met(5.1); % диаметр
+MAV.Prop.p = Utils.inch2met(4.5);   % шаг
 MAV.Prop.ed = 0.87;         % эффективность длины лопасти
 MAV.Prop.c_d = 0.1;         % отношение длины хорды к диаметру
 MAV.Prop.K_direction = [1 -1 1 -1]';
@@ -213,7 +213,7 @@ targeting_method_select = 3;
 
 % model_params
 function K_f = Gaurang(prop, rho, Va)
-    utils;
+    % utils;
     d = prop.d;
     p = prop.p;
     ed = prop.ed;

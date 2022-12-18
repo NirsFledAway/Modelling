@@ -1,5 +1,5 @@
 %%
-sim("simulink/run_quadrotor_2020a.slx", "StopTime", '15', "Debug", "off")
+sim("simulink/run_quadrotor.slx", "StopTime", '15', "Debug", "off")
 
 %%
 close all

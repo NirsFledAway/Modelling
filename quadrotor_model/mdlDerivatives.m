@@ -107,7 +107,7 @@ end
 function T = Gaurang(N, prop, rho, Va)
     persistent K_f
     if isempty(K_f)
-        utils;
+        %utils;
         d = prop.d;
         p = prop.p;
         ed = prop.ed;
