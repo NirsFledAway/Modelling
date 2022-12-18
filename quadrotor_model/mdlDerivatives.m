@@ -107,7 +107,7 @@ end
 function T = Gaurang(N, prop, rho, Va)
     persistent K_f
     if isempty(K_f)
-        %utils;
+        utils;
         d = prop.d;
         p = prop.p;
         ed = prop.ed;
@@ -154,9 +154,11 @@ end
 function Fb = AerialDrag(Vb, Wb, rho)
     Va_vec = Vb - Wb;  % w - wind, v - ground speed; body frame
     Va = norm(Va_vec);
-    alpha = atan2(Va_vec(2), Va_vec(1));    % attack angle
+    alpha_rad = atan2(Va_vec(2), Va_vec(1));    % attack angle
+    alpha = rad2deg(alpha_rad);
 %     beta = atan2(-Va_vec(3), Va_vec(1));     % скольжения angle
-    beta = asin(Va_vec(3)/max( norm(Va), 1e-5 ));
+    beta_rad = asin(Va_vec(3)/max( norm(Va), 1e-5 ));
+    beta = rad2deg(beta_rad);
     
     
     Va_0 = 10; % скорость, для которой рассчитаны зависимости сил
@@ -167,6 +169,7 @@ function Fb = AerialDrag(Vb, Wb, rho)
     alpha = abs(alpha);
     alpha = sign(alpha)*mod(alpha, 180);
     alpha = alpha + 180 * sign(90-alpha)*(abs(alpha)>90);
+    alpha = min(abs(alpha), 0.69)*sign(alpha);
     if alpha >= 0 && alpha <= 20
         F_xy = 0.6969 + 0.0022*(alpha+2.3409).^2;
     elseif alpha > 20 && alpha <= 90
@@ -180,8 +183,8 @@ function Fb = AerialDrag(Vb, Wb, rho)
 %     C_D_alpha = F_0 / (0.5*rho_0*Va_0^2) - C_0;
 %     C_D_alpha = F_0 / (0.5*rho_0*Va_0^2);
         C_xy = F_xy / (0.5*rho_0*Va_0^2);
-        C_x = C_xy * cos(alpha);
-        C_y = C_xy * sin(alpha);
+        C_x = C_xy * cos(alpha_rad);
+        C_y = C_xy * sin(alpha_rad);
         
         
     
@@ -190,6 +193,8 @@ function Fb = AerialDrag(Vb, Wb, rho)
     b = abs(beta);
     b = sign(b)*mod(b, 180);
     b = b + 180 * sign(90-b)*(abs(b)>90);
+    b = min(abs(b), 0.69)*sign(b);       %ограничение по углу у альфы 20 потому что дальше пиздец растёт 
+% у бетты убрали, чтобы показать сложную форму зависимости (спад)
     if b >= 0 && b <= 10
         F_xz = 2.81659e-7*b^6 - 5.42002e-6*b^5 + 0.0000194033*b^4 + 0.000149284*b^3 - 0.000766659*b^2 + 0.00100311*b + 0.715;
     elseif b > 10 && b <= 32
@@ -204,7 +209,7 @@ function Fb = AerialDrag(Vb, Wb, rho)
         F_xz = 0;
     end
     C_xz = F_xz / (0.5*rho_0*Va_0^2);
-    C_z = C_xz * sin(beta);
+    C_z = C_xz * sin(beta_rad);
 %     C_D_beta = F0 / (0.5*rho_0*Va_0^2) - C_0;
     
     

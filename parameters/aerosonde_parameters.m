@@ -3,7 +3,7 @@ addpath('../tools');
 clc;
 clear all
 close all
-% utils
+utils
 
 target_parameters;
 
@@ -29,7 +29,7 @@ MAV.v0 = MAV.vy0;
 
 MAV.w0     = 0;     % initial velocity along body z-axis
 MAV.phi0 = 0; % initial roll angle
-MAV.psi0 = deg2rad(90); % initial yaw angle
+MAV.psi0 = deg2rad(0); % initial yaw angle
 MAV.theta0 = 0; % initial pitch angle
 MAV.p0     = 0;     % initial body frame roll rate
 MAV.q0     = 0;     % initial body frame pitch rate
@@ -70,8 +70,8 @@ MAV.Body.C_aerial_drag_1 = 1.0; % 0.2 .. 1.2 Аэродинамическоий 
 MAV.rho = 1.19;
 
 % Пропеллер
-MAV.Prop.d = Utils.inch2met(5.1); % диаметр
-MAV.Prop.p = Utils.inch2met(4.5);   % шаг
+MAV.Prop.d = inch2met(5.1); % диаметр
+MAV.Prop.p = inch2met(4.5);   % шаг
 MAV.Prop.ed = 0.87;         % эффективность длины лопасти
 MAV.Prop.c_d = 0.1;         % отношение длины хорды к диаметру
 MAV.Prop.K_direction = [1 -1 1 -1]';
@@ -213,7 +213,7 @@ targeting_method_select = 3;
 
 % model_params
 function K_f = Gaurang(prop, rho, Va)
-    % utils;
+    utils;
     d = prop.d;
     p = prop.p;
     ed = prop.ed;

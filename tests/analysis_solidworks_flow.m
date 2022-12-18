@@ -1,11 +1,11 @@
 clc; close all; clear variables;
 data_a_v_10 = [...
-% -90 -0.030 -5.989 0.034;
-% -60 0.197 -4.972 0.028;
-% -45 0.498 -3.918 0.011;
-% -20 0.758 -1.577 0.001;
-% -10 0.692 -0.767 -0.001;
-    % 0 0.667 -0.035 -0.005;    % чутка другая сетка
+-90 -0.030 -5.989 0.034;
+-60 0.197 -4.972 0.028;
+-45 0.498 -3.918 0.011;
+-20 0.758 -1.577 0.001;
+-10 0.692 -0.767 -0.001;
+% 0 0.667 -0.035 -0.005;    % чутка другая сетка
 0 0.715 -0.039 -0.005;
 5 0.744 0.283 -0.004;
 10 0.799 0.672 -0.003;
@@ -92,19 +92,15 @@ plot(data_b_v_allax(:, 1), data_b_v_allax(:, 2));
 %%
 close all;
 figure;
-hold on;
-% grid on; grid minor; 
-% xlabel('\alpha, \beta'); 
-xlabel('\beta, град'); 
-ylabel("F, Н");
-    % scatter(a_10, F_10, 60, 'o', 'LineWidth', 2);
+hold on; grid on; grid minor; xlabel('\alpha, \beta'); ylabel("F");
+plot(a_10, F_10, '-x');
 % plot(a_5, F_5, '-x');
 % plot(a_10, F_a_10_approx, '-o');
 % plot(a_10, 0.6969 + 4*2*sin(deg2rad(a_10)).^2 .* cos(deg2rad(a_10)))
-    % plot(0:90, calc_C_alpha(0:90), 'LineWidth', 1.5)
+plot(-90:90, calc_C_alpha(-90:90))
 % plot(20:45, 4.9700 -7.5822e-04 *([20:45] -84.8228).^2)
 
-    scatter(b_allax, F_b_allax, 45, 'o');
+%     plot(b_allax, F_b_allax, '-x');
 
 % plot(b_10, F_b_10, '-x');
 % plot(0:10, F_b_10_2, '-x');
@@ -113,7 +109,7 @@ ylabel("F, Н");
 % b = sign(b).*mod(b, 180)   % приведение к диапазону 
 
 % b = b + 180 * sign(90-b).*(abs(b)>90)
-plot(0:0.01:90, calc_C_beta(0:0.01:90), 'LineWidth', 1.5);
+% plot(-360:0.01:360, calc_C_beta(b));
 % plot(-500:0.01:500, calc_C_beta(-500:0.01:500))
 
 % 2*sin(deg2rad(a_10)).^2 .* cos(deg2rad(a_10))

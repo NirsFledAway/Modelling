@@ -74,7 +74,7 @@ zeta = 0.7;
 w_n_theta = 39.4720;    % rad/s
 w_n_phi = 52.6379;
 % w_n_x = (1/5) * w_n_theta
-w_n_x = (1/10) * w_n_phi
+w_n_x = (1/8) * w_n_phi
 k_i = w_n_x^2 * A
 k_p = 2*zeta*w_n_x * A
 
@@ -90,8 +90,8 @@ opt.StepAmplitude = 10;    % meters
 g = 9.81;
 A = 1/g;
 
-u_max = deg2rad(40);
-e_max = 40;
+u_max = deg2rad(80);
+e_max = 20;
 k_p = u_max / e_max
 W_p = tf([k_p/A], [1 k_p/A])
 W_open = tf([g], [1 0]);
