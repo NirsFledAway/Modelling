@@ -3,7 +3,7 @@ addpath('../tools');
 clc;
 clear all
 close all
-utils
+% utils
 
 target_parameters;
 
@@ -45,6 +45,7 @@ Wind_ON = 1;
 % Среднегодовая скорость ветра
 MAV.Env.Wind_speed_h = 6;   % измеренная на высоте
 MAV.Env.Wind_speed_statistics = 6; 
+MAV.Env.Wind_stochastic_on = 1;
 MAV.Env.Wind_speed = [
     0
     0
@@ -53,7 +54,8 @@ MAV.Env.Wind_speed = [
    
 %physical parameters of airframe
 MAV.gravity = 9.81;
-MAV.mass = 0.383;
+% MAV.mass = 0.383;
+MAV.mass = 0.8;
 
 % линейные размеры, мм (для графики)
 MAV.radius_l = 125;    % луч от центра до оси винта
@@ -70,8 +72,8 @@ MAV.Body.C_aerial_drag_1 = 1.0; % 0.2 .. 1.2 Аэродинамическоий 
 MAV.rho = 1.19;
 
 % Пропеллер
-MAV.Prop.d = inch2met(5.1); % диаметр
-MAV.Prop.p = inch2met(4.5);   % шаг
+MAV.Prop.d = Utils.inch2met(5.1); % диаметр
+MAV.Prop.p = Utils.inch2met(4.5);   % шаг
 MAV.Prop.ed = 0.87;         % эффективность длины лопасти
 MAV.Prop.c_d = 0.1;         % отношение длины хорды к диаметру
 MAV.Prop.K_direction = [1 -1 1 -1]';
@@ -213,7 +215,7 @@ targeting_method_select = 3;
 
 % model_params
 function K_f = Gaurang(prop, rho, Va)
-    utils;
+    % utils;
     d = prop.d;
     p = prop.p;
     ed = prop.ed;
