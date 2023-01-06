@@ -19,7 +19,7 @@ MAV.y0    = 10;     % для полета за целью
 % MAV.y0    = 2;      % для стабилизации на точке
 MAV.z0    = 0;     % initial Zg position
 MAV.vx0     = 0;     % initial velocity along body x-axis
-MAV.vy0     = 0;
+MAV.vy0     = 10;
 
 MAV.pn0 = MAV.x0;
 MAV.pe0 = MAV.y0;
@@ -30,7 +30,7 @@ MAV.v0 = MAV.vy0;
 MAV.w0     = 0;     % initial velocity along body z-axis
 MAV.phi0 = 0; % initial roll angle
 MAV.psi0 = deg2rad(0); % initial yaw angle
-MAV.theta0 = 0; % initial pitch angle
+MAV.theta0 = deg2rad(0); % initial pitch angle
 MAV.p0     = 0;     % initial body frame roll rate
 MAV.q0     = 0;     % initial body frame pitch rate
 MAV.r0     = 0;     % initial body frame yaw rate
@@ -55,7 +55,7 @@ MAV.Env.Wind_speed = [
 %physical parameters of airframe
 MAV.gravity = 9.81;
 % MAV.mass = 0.383;
-MAV.mass = 0.8;
+MAV.mass = 0.64;
 
 % линейные размеры, мм (для графики)
 MAV.radius_l = 125;    % луч от центра до оси винта
