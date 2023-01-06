@@ -1,13 +1,13 @@
-TARGET.t0 = 0;
+TARGET.t0 = 2;
 TARGET.r0 = [
     20;
     0;
     20
 ];
 % TARGET.r0 = [
+%     75;
 %     0;
-%     0;
-%     0
+%     75
 % ];
 TARGET.v0 = [
     9.8;

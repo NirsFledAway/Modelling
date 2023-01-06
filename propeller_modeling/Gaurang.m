@@ -1,8 +1,8 @@
 function T = Gaurang(N, prop, rho, Va)
-% utils;
+utils;
 Omega = 2*pi*N/60;
-d = Utils.inch2met(prop.d);
-p = Utils.inch2met(prop.h);
+d = inch2met(prop.d);
+p = inch2met(prop.h);
 ed = prop.ed;
 k = prop.Nb * prop.c_d / 2
 theta = atan(p/(pi*d))

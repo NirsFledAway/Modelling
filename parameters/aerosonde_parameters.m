@@ -3,7 +3,7 @@ addpath('../tools');
 clc;
 clear all
 close all
-% utils
+utils
 
 target_parameters;
 
@@ -19,7 +19,7 @@ MAV.y0    = 10;     % для полета за целью
 % MAV.y0    = 2;      % для стабилизации на точке
 MAV.z0    = 0;     % initial Zg position
 MAV.vx0     = 0;     % initial velocity along body x-axis
-MAV.vy0     = 10;
+MAV.vy0     = 0;
 
 MAV.pn0 = MAV.x0;
 MAV.pe0 = MAV.y0;
@@ -30,7 +30,7 @@ MAV.v0 = MAV.vy0;
 MAV.w0     = 0;     % initial velocity along body z-axis
 MAV.phi0 = 0; % initial roll angle
 MAV.psi0 = deg2rad(0); % initial yaw angle
-MAV.theta0 = deg2rad(0); % initial pitch angle
+MAV.theta0 = 0; % initial pitch angle
 MAV.p0     = 0;     % initial body frame roll rate
 MAV.q0     = 0;     % initial body frame pitch rate
 MAV.r0     = 0;     % initial body frame yaw rate
@@ -45,7 +45,6 @@ Wind_ON = 1;
 % Среднегодовая скорость ветра
 MAV.Env.Wind_speed_h = 6;   % измеренная на высоте
 MAV.Env.Wind_speed_statistics = 6; 
-MAV.Env.Wind_stochastic_on = 1;
 MAV.Env.Wind_speed = [
     0
     0
@@ -55,7 +54,8 @@ MAV.Env.Wind_speed = [
 %physical parameters of airframe
 MAV.gravity = 9.81;
 % MAV.mass = 0.383;
-MAV.mass = 0.64;
+% MAV.mass = 0.8;
+MAV.mass = 0.64; %0.65 - тангаж будет в +5
 
 % линейные размеры, мм (для графики)
 MAV.radius_l = 125;    % луч от центра до оси винта
@@ -72,8 +72,8 @@ MAV.Body.C_aerial_drag_1 = 1.0; % 0.2 .. 1.2 Аэродинамическоий 
 MAV.rho = 1.19;
 
 % Пропеллер
-MAV.Prop.d = Utils.inch2met(5.1); % диаметр
-MAV.Prop.p = Utils.inch2met(4.5);   % шаг
+MAV.Prop.d = inch2met(5.1); % диаметр
+MAV.Prop.p = inch2met(4.5);   % шаг
 MAV.Prop.ed = 0.87;         % эффективность длины лопасти
 MAV.Prop.c_d = 0.1;         % отношение длины хорды к диаметру
 MAV.Prop.K_direction = [1 -1 1 -1]';
@@ -215,7 +215,7 @@ targeting_method_select = 3;
 
 % model_params
 function K_f = Gaurang(prop, rho, Va)
-    % utils;
+    utils;
     d = prop.d;
     p = prop.p;
     ed = prop.ed;
