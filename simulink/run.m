@@ -1,10 +1,12 @@
 %%
-sim("simulink/run_quadrotor_2020a.slx", "StopTime", '3', "Debug", "off")
+sim("simulink/run_quadrotor_2020a.slx", "StopTime", '20', "Debug", "off")
 
 %%
 close all
-W = tf([15], [1 15])
-step(W)
+K = 2*pi*100
+W = tf([1], [1/K 1]) 
+bode(W)
+% step(W)
 %%
 Vg = [10 0 2]';  
 Vb = getRotationMatrix([phi theta psi]) * Vg

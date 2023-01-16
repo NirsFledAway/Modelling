@@ -7,6 +7,8 @@ utils
 
 target_parameters;
 
+MAV.AHRS = MadgwickAHRS('SamplePeriod', 1/256, 'Beta', 0.1);
+
 % initial conditions
 MAV.pn0    = 0;     % initial North position
 MAV.pe0    = 0;     % initial Yg position
