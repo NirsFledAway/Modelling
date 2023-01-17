@@ -101,6 +101,11 @@ MAV.Motor;
 
 MAV.Control.u_xz_max = 2 * (MAV.Motor.Nmax*0.9)^2;
 
+% Sensors
+MAV.sensors.imu_discretization_period = 1/500;
+MAV.sensors.gps_discretization_period = 1/5;
+
+
 % MAV.J = diag([MAV.Jx MAV.Jy MAV.Jz]);
 % MAV.J = [ ...
 %     1.34e-3 -9.4e-8 3.3e-8;

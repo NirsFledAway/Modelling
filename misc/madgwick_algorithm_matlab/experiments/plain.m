@@ -14,6 +14,7 @@ Accelerometer = [Accelerometer(:, 1) Accelerometer(:, 3) -Accelerometer(:, 2)];
 Magnetometer = sensors(7:9, :)';
 Magnetometer = [Magnetometer(:, 1) Magnetometer(:, 3) -Magnetometer(:, 2)];
 
+
 %%
 close all;
 figure('Name', 'Euler angles real')
@@ -25,7 +26,7 @@ legend("phi", "theta", "psi")
 % plot(time(1:end-1), time(2:end) - time(1:end-1))
 
 q = [1 0 0 0];
-dt = 0.001;
+dt = 1/500;
 quaternion = zeros(length(time), 4);
 for i=1:length(time)
     w = [0 Gyroscope(i, 1) Gyroscope(i, 2) Gyroscope(i, 3)];

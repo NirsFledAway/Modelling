@@ -15,7 +15,13 @@ V_xy = sqrt(Vb(1)^2 + Vb(2)^2);
 beta_beard_1 = -rad2deg(asin(Vb(3)/norm(Vg)))
 % beta_beard_2 = -rad2deg(atan(Vb(3)/V_xy))
 % beta_old_fuck = atan2(-Vb(3), Vb(1))
+%%
+syms p q r u v w
 
+omega = [p q r]';
+speed = [u v w]';
+cross(omega, speed)
+-cross(speed, omega)
 %%
 clc
 des = [179 -179 0 5 -5 343 -343]

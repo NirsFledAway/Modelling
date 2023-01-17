@@ -1,5 +1,5 @@
 function plotMAVStateVariables(uu)
-    FPS = 5;
+    FPS = 2;
     PPS = 80;   % points per second
     t = uu(end);
     persistent lastWorkedTime
