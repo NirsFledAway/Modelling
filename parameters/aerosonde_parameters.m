@@ -1,13 +1,11 @@
 % initialize the mav viewer
 addpath('../tools');  
-clc;
-clear all
-close all
+% clc;
+% clear all
+% close all
 utils
 
 target_parameters;
-
-MAV.AHRS = MadgwickAHRS('SamplePeriod', 1/256, 'Beta', 0.1);
 
 % initial conditions
 MAV.pn0    = 0;     % initial North position
@@ -46,7 +44,9 @@ MAV.desired_fixed = [pos vel acc];
 Wind_ON = 1;
 % Среднегодовая скорость ветра
 MAV.Env.Wind_speed_h = 6;   % измеренная на высоте
-MAV.Env.Wind_speed_statistics = 6; 
+MAV.Env.Wind_speed_statistics = 6;    % для наведения
+% MAV.Env.wind_seed = wind_seed;
+% MAV.Env.Wind_speed_statistics = 15; 
 MAV.Env.Wind_speed = [
     0
     0
@@ -102,8 +102,22 @@ MAV.Motor;
 MAV.Control.u_xz_max = 2 * (MAV.Motor.Nmax*0.9)^2;
 
 % Sensors
-MAV.sensors.imu_discretization_period = 1/500;
-MAV.sensors.gps_discretization_period = 1/5;
+MAV.Sensors.Accel.Variance = [1 1 1] * 0.05;
+% MAV.Sensors.Accel.Seed = [23341 333 555];
+% MAV.Sensors.Accel.Seed = accel_seed;
+MAV.Sensors.Accel.Mean = [0 0 0];
+MAV.Sensors.Accel.Discretization_period = 1/500;
+
+MAV.Sensors.Gyro.Discretization_period = MAV.Sensors.Accel.Discretization_period;
+MAV.Sensors.Gyro.Variance = [1 1 1] * deg2rad(0.1);
+% MAV.Sensors.Gyro.Seed = [23341 333 555];
+% MAV.Sensors.Gyro.Seed = gyro_seed;
+MAV.Sensors.Gyro.Mean = [0 0 0];
+
+MAV.Sensors.Mag.Discretization_period = MAV.Sensors.Accel.Discretization_period;
+
+MAV.Sensors.GPS.Discretization_period = 1/5;
+
 
 
 % MAV.J = diag([MAV.Jx MAV.Jy MAV.Jz]);

@@ -1,5 +1,9 @@
 %%
-sim("simulink/run_quadrotor_2020a.slx", "StopTime", '20', "Debug", "off")
+clc; clear variables; close all;
+MAV.Sensors.Accel.Seed = [23341 333 555];
+MAV.Sensors.Gyro.Seed = [23341 333 555];
+MAV.Env.wind_seed = 0;
+res = sim("run_quadrotor_2020a.slx", "StopTime", '20', "Debug", "off")
 
 %%
 close all
